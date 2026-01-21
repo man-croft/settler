@@ -10,7 +10,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useWalletStore } from '@/store/wallet'
 import { TESTNET, ERC20_ABI } from '@/lib/constants'
 import { formatAmount } from '@/lib/utils'
-import { executeDeposit, withdrawToEthereumWithWallet } from '@/lib/bridge'
+import { 
+  approveUsdc, 
+  depositToStacks, 
+  getUsdcAllowance, 
+  generateHookData,
+  withdrawToEthereumWithWallet 
+} from '@/lib/bridge'
 
 type Direction = 'ETH_TO_STX' | 'STX_TO_ETH'
 
@@ -68,6 +74,8 @@ export function PayPage() {
   const [status, setStatus] = useState<'idle' | 'approving' | 'bridging' | 'success' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
   const [txHash, setTxHash] = useState<string | null>(null)
+  const [_allowance, setAllowance] = useState<bigint>(0n)
+  const [needsApproval, setNeedsApproval] = useState(true)
   
   // Ethereum wallet
   const { address: ethAddress, isConnected: isEthConnected } = useAccount()
@@ -129,87 +137,153 @@ export function PayPage() {
     return () => clearInterval(interval)
   }, [ethAddress, stacksAddress, publicClient])
 
-  const handlePay = async () => {
-    if (!invoice) return
+  // Check USDC allowance for ETH_TO_STX direction
+  useEffect(() => {
+    async function checkAllowance() {
+      if (!publicClient || !ethAddress || !invoice || invoice.direction !== 'ETH_TO_STX') {
+        return
+      }
+      
+      try {
+        const currentAllowance = await getUsdcAllowance(publicClient, ethAddress as `0x${string}`)
+        setAllowance(currentAllowance)
+        
+        const requiredAmount = BigInt(Math.floor(parseFloat(invoice.amount) * 1_000_000))
+        setNeedsApproval(currentAllowance < requiredAmount)
+      } catch (e) {
+        console.error('Error checking allowance:', e)
+      }
+    }
+    
+    checkAllowance()
+  }, [publicClient, ethAddress, invoice])
+
+  const handleApprove = async () => {
+    if (!invoice || !walletClient || !publicClient) return
     setError(null)
-    setTxHash(null)
 
     try {
-      if (invoice.direction === 'ETH_TO_STX') {
-        if (!isEthConnected || !walletClient) {
-          throw new Error('Please connect your Ethereum wallet')
-        }
-        
-        if (!publicClient) {
-          throw new Error('Ethereum network connection failed')
-        }
-
-        setStatus('approving')
-        const result = await executeDeposit({
-          walletClient,
-          publicClient: publicClient,
-          stacksRecipient: invoice.recipient,
-          amount: invoice.amount,
-        })
-
-        setTxHash(result.depositTxHash)
-        setStatus('success')
-
-        setTimeout(() => {
-          navigate(`/track?tx=${result.depositTxHash}&dir=ETH_TO_STX&to=${encodeURIComponent(invoice.recipient)}&hookData=${result.hookData}`)
-        }, 3000)
-
-      } else {
-        if (!isStacksConnected || !stacksAddress) {
-          throw new Error('Please connect your Stacks wallet')
-        }
-
-        setStatus('bridging')
-
-        withdrawToEthereumWithWallet(
-          {
-            amount: invoice.amount,
-            ethRecipient: invoice.recipient,
-            senderAddress: stacksAddress,
-          },
-          (result) => {
-            setTxHash(result.txId)
-            setStatus('success')
-            setTimeout(() => {
-              navigate(`/track?tx=${result.txId}&dir=STX_TO_ETH&to=${encodeURIComponent(invoice.recipient)}`)
-            }, 3000)
-          },
-          (error?: string) => {
-            setStatus('error')
-            setError(error || 'Transaction was cancelled by user')
-          }
-        )
-      }
+      setStatus('approving')
+      const approveTxHash = await approveUsdc(walletClient, invoice.amount)
+      
+      // Wait for approval to be confirmed
+      await publicClient.waitForTransactionReceipt({ hash: approveTxHash })
+      
+      // Refresh allowance
+      const newAllowance = await getUsdcAllowance(publicClient, ethAddress as `0x${string}`)
+      setAllowance(newAllowance)
+      
+      const requiredAmount = BigInt(Math.floor(parseFloat(invoice.amount) * 1_000_000))
+      setNeedsApproval(newAllowance < requiredAmount)
+      
+      setStatus('idle')
     } catch (err: any) {
-      console.error('Payment error:', err)
+      console.error('Approval error:', err)
       setStatus('error')
       
-      // Enhanced error messages
-      let errorMessage = 'Payment failed. Please try again.'
-      
+      let errorMessage = 'Approval failed. Please try again.'
       if (err.message) {
-        // Check for common error patterns
         if (err.message.includes('User rejected') || err.message.includes('user rejected')) {
-          errorMessage = 'Transaction rejected by user'
-        } else if (err.message.includes('insufficient funds')) {
-          errorMessage = 'Insufficient funds to complete transaction'
-        } else if (err.message.includes('nonce')) {
-          errorMessage = 'Transaction nonce error. Please try again.'
-        } else if (err.message.includes('gas')) {
-          errorMessage = 'Insufficient gas to complete transaction'
-        } else if (err.message.includes('network')) {
-          errorMessage = 'Network connection error. Please check your connection.'
+          errorMessage = 'Approval rejected by user'
         } else {
           errorMessage = err.message
         }
       }
-      
       setError(errorMessage)
+    }
+  }
+
+  const handleBridge = async () => {
+    if (!invoice || !walletClient) return
+    setError(null)
+    setTxHash(null)
+
+    try {
+      setStatus('bridging')
+      
+      const hookData = generateHookData()
+      const depositTxHash = await depositToStacks(
+        walletClient,
+        invoice.amount,
+        invoice.recipient,
+        hookData
+      )
+
+      setTxHash(depositTxHash)
+      setStatus('success')
+
+      setTimeout(() => {
+        navigate(`/track?tx=${depositTxHash}&dir=ETH_TO_STX&to=${encodeURIComponent(invoice.recipient)}&hookData=${hookData}`)
+      }, 3000)
+
+    } catch (err: any) {
+      console.error('Bridge error:', err)
+      setStatus('error')
+      
+      let errorMessage = 'Bridge failed. Please try again.'
+      if (err.message) {
+        if (err.message.includes('User rejected') || err.message.includes('user rejected')) {
+          errorMessage = 'Transaction rejected by user'
+        } else if (err.message.includes('insufficient funds')) {
+          errorMessage = 'Insufficient funds to complete transaction'
+        } else {
+          errorMessage = err.message
+        }
+      }
+      setError(errorMessage)
+    }
+  }
+
+  const handleWithdraw = () => {
+    if (!invoice || !stacksAddress) return
+    setError(null)
+    setTxHash(null)
+    setStatus('bridging')
+
+    withdrawToEthereumWithWallet(
+      {
+        amount: invoice.amount,
+        ethRecipient: invoice.recipient,
+        senderAddress: stacksAddress,
+      },
+      (result) => {
+        setTxHash(result.txId)
+        setStatus('success')
+        setTimeout(() => {
+          navigate(`/track?tx=${result.txId}&dir=STX_TO_ETH&to=${encodeURIComponent(invoice.recipient)}`)
+        }, 3000)
+      },
+      (error?: string) => {
+        setStatus('error')
+        setError(error || 'Transaction was cancelled by user')
+      }
+    )
+  }
+
+  const handlePay = () => {
+    if (!invoice) return
+    
+    if (invoice.direction === 'ETH_TO_STX') {
+      if (!isEthConnected || !walletClient) {
+        setError('Please connect your Ethereum wallet')
+        return
+      }
+      if (!publicClient) {
+        setError('Ethereum network connection failed')
+        return
+      }
+      
+      if (needsApproval) {
+        handleApprove()
+      } else {
+        handleBridge()
+      }
+    } else {
+      if (!isStacksConnected || !stacksAddress) {
+        setError('Please connect your Stacks wallet')
+        return
+      }
+      handleWithdraw()
     }
   }
    
@@ -435,19 +509,45 @@ export function PayPage() {
                 </p>
               </div>
             ) : (
-              <Button 
-                className="w-full h-16 text-lg bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-lg shadow-red-900/20 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                onClick={handlePay}
-                disabled={status === 'approving' || status === 'bridging' || status === 'success' || !hasEnoughBalance || !meetsMinimum}
-              >
-                {(status === 'approving' || status === 'bridging') && (
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                )}
-                {status === 'approving' ? 'Approving...' :
-                 status === 'bridging' ? 'Processing...' :
-                 status === 'success' ? 'Payment Sent!' :
-                 `Pay ${formatAmount(invoice.amount)} ${isEthToStx ? 'USDC' : 'USDCx'}`}
-              </Button>
+              isEthToStx ? (
+                <div className="space-y-3">
+                  {/* Approval status indicator */}
+                  {!needsApproval && status !== 'success' && (
+                    <div className="flex items-center gap-2 text-emerald-400 text-sm justify-center py-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                      <CheckCircle className="w-4 h-4" />
+                      <span>USDC Approved</span>
+                    </div>
+                  )}
+                  
+                  <Button 
+                    className="w-full h-16 text-lg bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-lg shadow-red-900/20 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    onClick={handlePay}
+                    disabled={status === 'approving' || status === 'bridging' || status === 'success' || !hasEnoughBalance || !meetsMinimum}
+                  >
+                    {(status === 'approving' || status === 'bridging') && (
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    )}
+                    {status === 'approving' ? 'Approving USDC...' :
+                     status === 'bridging' ? 'Bridging to Stacks...' :
+                     status === 'success' ? 'Payment Sent!' :
+                     needsApproval ? `Approve ${formatAmount(invoice.amount)} USDC` :
+                     `Bridge ${formatAmount(invoice.amount)} USDC`}
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  className="w-full h-16 text-lg bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-lg shadow-red-900/20 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  onClick={handlePay}
+                  disabled={status === 'bridging' || status === 'success' || !hasEnoughBalance || !meetsMinimum}
+                >
+                  {status === 'bridging' && (
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  )}
+                  {status === 'bridging' ? 'Processing...' :
+                   status === 'success' ? 'Payment Sent!' :
+                   `Pay ${formatAmount(invoice.amount)} USDCx`}
+                </Button>
+              )
             )}
 
             {/* Footer Info */}

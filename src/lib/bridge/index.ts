@@ -5,6 +5,7 @@ export {
   approveUsdc, 
   depositToStacks, 
   executeDeposit,
+  generateHookData,
   type DepositParams,
   type DepositResult 
 } from './deposit'
