@@ -142,11 +142,6 @@ export function Layout({ children }: LayoutProps) {
       <header className="sticky top-0 z-50 w-full glass-strong border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-3 font-semibold text-xl tracking-tight hover:opacity-80 transition-opacity">
-            <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center shadow-lg shadow-red-600/20">
-              <svg viewBox="0 0 24 24" fill="none" stroke="white" className="w-5 h-5" strokeWidth={2.5}>
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-              </svg>
-            </div>
             <span className="font-display font-bold text-xl tracking-wider text-white">SETTLER</span>
           </Link>
           
