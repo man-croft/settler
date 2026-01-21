@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi'
 import { formatUnits } from 'viem'
-import { AlertCircle, Loader2, CheckCircle, ArrowRight, ExternalLink, CreditCard, Wallet } from 'lucide-react'
+import { AlertCircle, Loader2, CheckCircle, ArrowRight, ExternalLink, CreditCard, Wallet, RefreshCw } from 'lucide-react'
 
 import { Layout } from '@/components/layout/Layout'
 import { Button } from '@/components/ui/button'
@@ -74,8 +74,9 @@ export function PayPage() {
   const [status, setStatus] = useState<'idle' | 'approving' | 'bridging' | 'success' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
   const [txHash, setTxHash] = useState<string | null>(null)
-  const [_allowance, setAllowance] = useState<bigint>(0n)
+  const [allowance, setAllowance] = useState<bigint>(0n)
   const [needsApproval, setNeedsApproval] = useState(true)
+  const [isRefreshingAllowance, setIsRefreshingAllowance] = useState(false)
   
   // Ethereum wallet
   const { address: ethAddress, isConnected: isEthConnected } = useAccount()
@@ -137,26 +138,34 @@ export function PayPage() {
     return () => clearInterval(interval)
   }, [ethAddress, stacksAddress, publicClient])
 
-  // Check USDC allowance for ETH_TO_STX direction
-  useEffect(() => {
-    async function checkAllowance() {
-      if (!publicClient || !ethAddress || !invoice || invoice.direction !== 'ETH_TO_STX') {
-        return
-      }
-      
-      try {
-        const currentAllowance = await getUsdcAllowance(publicClient, ethAddress as `0x${string}`)
-        setAllowance(currentAllowance)
-        
-        const requiredAmount = BigInt(Math.floor(parseFloat(invoice.amount) * 1_000_000))
-        setNeedsApproval(currentAllowance < requiredAmount)
-      } catch (e) {
-        console.error('Error checking allowance:', e)
-      }
+  // Function to check allowance (reusable)
+  const checkAllowance = async () => {
+    if (!publicClient || !ethAddress || !invoice || invoice.direction !== 'ETH_TO_STX') {
+      return
     }
     
+    try {
+      const currentAllowance = await getUsdcAllowance(publicClient, ethAddress as `0x${string}`)
+      setAllowance(currentAllowance)
+      
+      const requiredAmount = BigInt(Math.floor(parseFloat(invoice.amount) * 1_000_000))
+      setNeedsApproval(currentAllowance < requiredAmount)
+    } catch (e) {
+      console.error('Error checking allowance:', e)
+    }
+  }
+
+  // Check USDC allowance for ETH_TO_STX direction
+  useEffect(() => {
     checkAllowance()
   }, [publicClient, ethAddress, invoice])
+
+  // Manual refresh allowance
+  const handleRefreshAllowance = async () => {
+    setIsRefreshingAllowance(true)
+    await checkAllowance()
+    setIsRefreshingAllowance(false)
+  }
 
   const handleApprove = async () => {
     if (!invoice || !walletClient || !publicClient) return
@@ -169,12 +178,8 @@ export function PayPage() {
       // Wait for approval to be confirmed
       await publicClient.waitForTransactionReceipt({ hash: approveTxHash })
       
-      // Refresh allowance
-      const newAllowance = await getUsdcAllowance(publicClient, ethAddress as `0x${string}`)
-      setAllowance(newAllowance)
-      
-      const requiredAmount = BigInt(Math.floor(parseFloat(invoice.amount) * 1_000_000))
-      setNeedsApproval(newAllowance < requiredAmount)
+      // Refresh allowance using the shared function
+      await checkAllowance()
       
       setStatus('idle')
     } catch (err: any) {
@@ -516,6 +521,34 @@ export function PayPage() {
                     <div className="flex items-center gap-2 text-emerald-400 text-sm justify-center py-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
                       <CheckCircle className="w-4 h-4" />
                       <span>USDC Approved</span>
+                    </div>
+                  )}
+                  
+                  {/* Allowance display with refresh button */}
+                  {isEthConnected && (
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-[10px] uppercase tracking-widest text-white/40 font-mono">Current Allowance</p>
+                        <button
+                          onClick={handleRefreshAllowance}
+                          disabled={isRefreshingAllowance || status === 'approving'}
+                          className="p-1 rounded hover:bg-white/10 text-white/60 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Refresh allowance"
+                        >
+                          <RefreshCw className={`w-3 h-3 ${isRefreshingAllowance ? 'animate-spin' : ''}`} />
+                        </button>
+                      </div>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-2xl font-bold text-white font-display">
+                          {formatAmount(formatUnits(allowance, 6))}
+                        </p>
+                        <span className="text-sm text-white/40">USDC</span>
+                      </div>
+                      <p className="text-xs text-white/40 mt-1">
+                        {needsApproval 
+                          ? `Need ${formatAmount(invoice.amount)} USDC approval to continue`
+                          : 'Ready to bridge'}
+                      </p>
                     </div>
                   )}
                   
