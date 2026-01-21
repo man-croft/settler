@@ -52,9 +52,11 @@ function StepIndicator({
   const stepIndex = statusOrder.indexOf(step.id)
   const currentIndex = statusOrder.indexOf(currentStatus)
   
+  // A step is complete if we've passed it OR if status is 'complete' (all steps done)
   const isComplete = stepIndex < currentIndex || currentStatus === 'complete'
-  const isCurrent = step.id === currentStatus
-  const isFailed = currentStatus === 'failed' && isCurrent
+  // A step is current only if it matches the current status AND we're not complete yet
+  const isCurrent = step.id === currentStatus && currentStatus !== 'complete'
+  const isFailed = currentStatus === 'failed' && step.id === currentStatus
 
   return (
     <div className="flex gap-4">
