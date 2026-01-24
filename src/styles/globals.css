@@ -4,93 +4,122 @@
 
 @layer base {
   :root {
-    /* Glassmorphism Black/White/Red Theme */
-    --background: 0 0% 0%; /* Pure Black */
-    --foreground: 0 0% 100%; /* Pure White */
-    
-    /* Card: Dark Glass */
-    --card: 0 0% 8%; /* Dark Gray/Black */
+    --background: 266 93% 5%;
+    --foreground: 0 0% 100%;
+    --card: 259 53% 9%;
     --card-foreground: 0 0% 100%;
-    
-    --popover: 0 0% 5%;
+    --popover: 266 93% 5%;
     --popover-foreground: 0 0% 100%;
-    
-    /* Primary: Red */
-    --primary: 0 84% 60%; /* #EF4444 Red-500 */
-    --primary-foreground: 0 0% 100%;
-    
-    /* Secondary: Dark Gray */
-    --secondary: 0 0% 15%;
+    --primary: 69 100% 50%;
+    --primary-foreground: 266 93% 5%;
+    --secondary: 285 100% 50%;
     --secondary-foreground: 0 0% 100%;
-    
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 60%;
-    
-    --accent: 0 84% 60%;
-    --accent-foreground: 0 0% 100%;
-    
+    --muted: 265 50% 15%;
+    --muted-foreground: 265 20% 70%;
+    --accent: 69 100% 50%;
+    --accent-foreground: 266 93% 5%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    
-    --border: 0 0% 20%;
-    --input: 0 0% 15%;
-    --ring: 0 84% 60%;
-    
-    --radius: 1rem;
+    --border: 265 30% 20%;
+    --input: 265 30% 15%;
+    --ring: 69 100% 50%;
+    --radius: 1.5rem;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
   
   body {
-    @apply bg-background text-foreground antialiased selection:bg-red-500/30;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-feature-settings: "rlig" 1, "calt" 1;
-    background-image: 
-      radial-gradient(circle at 50% 0%, rgba(239, 68, 68, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.05) 0%, transparent 30%);
+    background-image: radial-gradient(circle at 50% 0%, rgba(189, 0, 255, 0.15) 0%, transparent 50%), radial-gradient(circle at 100% 0%, rgba(217, 255, 0, 0.1) 0%, transparent 40%);
     background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
   }
 }
 
-/* Glassmorphism Utilities */
-@layer utilities {
-  .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10;
-  }
-  
-  .glass-card {
-    @apply bg-zinc-900/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl shadow-black/20;
-  }
-  
-  .glass-strong {
-    @apply bg-black/80 backdrop-blur-xl border border-white/10;
-  }
-  
-  .glow-red {
-    box-shadow: 0 0 60px -20px rgba(239, 68, 68, 0.3);
-  }
-  
-  .glow-white {
-    box-shadow: 0 0 60px -20px rgba(255, 255, 255, 0.15);
-  }
-  
-  .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/60;
-  }
-  
-  .gradient-text-red {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-600;
-  }
+.clay-card {
+  background-color: hsl(var(--card));
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 300ms;
+  box-shadow: 8px 8px 16px 0px rgba(0, 0, 0, 0.25), inset -2px -2px 4px 0px rgba(0, 0, 0, 0.3), inset 2px 2px 4px 0px rgba(255, 255, 255, 0.1);
 }
 
-/* Smooth Transitions */
-@layer base {
-  *, *::before, *::after {
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 200ms;
-  }
+.clay-card-interactive {
+  background-color: hsl(var(--card));
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 300ms;
+  box-shadow: 8px 8px 16px 0px rgba(0, 0, 0, 0.25), inset -2px -2px 4px 0px rgba(0, 0, 0, 0.3), inset 2px 2px 4px 0px rgba(255, 255, 255, 0.1);
+}
+
+.clay-card-interactive:hover {
+  transform: translateY(-0.25rem);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 8px 8px 16px 0px rgba(0, 0, 0, 0.25), inset -2px -2px 4px 0px rgba(0, 0, 0, 0.3), inset 2px 2px 4px 0px rgba(255, 255, 255, 0.1), 0 0 20px rgba(189, 0, 255, 0.2);
+}
+
+.clay-btn {
+  background-color: hsl(var(--card));
+  color: white;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 150ms;
+  box-shadow: 6px 6px 12px 0px rgba(0, 0, 0, 0.25), inset -2px -2px 4px 0px rgba(0, 0, 0, 0.3), inset 2px 2px 4px 0px rgba(255, 255, 255, 0.15);
+}
+
+.clay-btn:active {
+  transform: translateY(0.125rem);
+  box-shadow: inset 4px 4px 8px 0px rgba(0, 0, 0, 0.3), inset -2px -2px 4px 0px rgba(255, 255, 255, 0.05);
+}
+
+.clay-btn-primary {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 0 20px -5px rgba(217, 255, 0, 0.4);
+  transition: all 150ms;
+}
+
+.clay-btn-primary:hover {
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0 30px -5px rgba(217, 255, 0, 0.6);
+}
+
+.clay-btn-primary:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.clay-input {
+  background-color: #0f081e;
+  border-radius: 1rem;
+  border: none;
+  color: white;
+  box-shadow: inset 4px 4px 8px 0px rgba(0, 0, 0, 0.3), inset -1px -1px 2px 0px rgba(255, 255, 255, 0.05);
+}
+
+.clay-input:focus {
+  outline: 2px solid rgba(217, 255, 0, 0.5);
+}
+
+.text-gradient-electric {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-image: linear-gradient(to right, #D9FF00, #BD00FF);
+}
+
+.text-gradient-subtle {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-image: linear-gradient(to bottom, #ffffff, rgba(255, 255, 255, 0.6));
 }
