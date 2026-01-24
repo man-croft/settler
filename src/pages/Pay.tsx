@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi'
 import { formatUnits } from 'viem'
-import { AlertCircle, Loader2, CheckCircle, ArrowRight, ExternalLink, CreditCard, Wallet, RefreshCw } from 'lucide-react'
+import { AlertCircle, Loader2, CheckCircle, ArrowRight, Wallet, RefreshCw } from 'lucide-react'
 
 import { Layout } from '@/components/layout/Layout'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { useWalletStore } from '@/store/wallet'
 import { TESTNET, ERC20_ABI } from '@/lib/constants'
 import { formatAmount } from '@/lib/utils'
@@ -361,232 +361,187 @@ export function PayPage() {
 
   return (
     <Layout>
-      <div className="max-w-lg mx-auto space-y-6">
+      <div className="max-w-lg mx-auto space-y-8">
         {/* Header */}
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-white mb-2 font-display tracking-wide">Pay Invoice</h1>
-          <p className="text-white/60">
-            Review and complete this cross-chain payment
+        <div className="text-center relative">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-electric-lime/20 blur-[60px] rounded-full pointer-events-none" />
+          <h1 className="text-4xl font-display font-black text-white mb-2 tracking-tight drop-shadow-sm relative z-10">
+            Pay Invoice
+          </h1>
+          <p className="text-white/60 font-light relative z-10">
+            Review and complete payment
           </p>
         </div>
 
         {/* Invoice Card */}
-        <Card className="glass-card glow-white overflow-hidden">
-          <div className="h-1 w-full bg-gradient-to-r from-red-600 via-red-500 to-red-600" />
-          <CardHeader>
-            <CardTitle className="text-lg text-white flex items-center justify-between font-display">
-              <span>Invoice Details</span>
-              <span className="text-xs px-3 py-1 rounded-full bg-white/10 border border-white/10 text-white/60 font-mono font-normal">
-                {isEthToStx ? 'ETH → STX' : 'STX → ETH'}
+        <Card className="clay-card overflow-visible relative">
+          <CardHeader className="pb-2 pt-8 px-8 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/5 mx-auto mb-4">
+              <span className={`w-2 h-2 rounded-full ${isEthToStx ? 'bg-electric-lime shadow-[0_0_8px_#D9FF00]' : 'bg-electric-purple shadow-[0_0_8px_#BD00FF]'}`} />
+              <span className="text-xs font-bold uppercase tracking-widest text-white/60">
+                {isEthToStx ? 'ETH → STX Bridge' : 'STX → ETH Bridge'}
               </span>
-            </CardTitle>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-6">
+          
+          <CardContent className="space-y-8 px-8 pb-8">
             
-            {/* Visual Route */}
-            <div className="bg-white/5 rounded-2xl p-6 border border-white/5 flex items-center justify-center gap-8 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-50" />
-              
-              <div className="text-center relative z-10">
-                <div className="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3 shadow-lg border border-white/10">
-                  {isEthToStx ? '$' : 'S'}
-                </div>
-                <p className="text-sm font-bold text-white">{isEthToStx ? 'USDC' : 'USDCx'}</p>
-                <p className="text-[10px] uppercase tracking-wider text-white/40 font-mono mt-1">{isEthToStx ? 'ETHEREUM' : 'STACKS'}</p>
-              </div>
-
-              <div className="flex flex-col items-center gap-2 text-white/20">
-                <ArrowRight className="w-6 h-6 animate-pulse" />
-              </div>
-
-              <div className="text-center relative z-10">
-                <div className="w-16 h-16 rounded-xl bg-red-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3 shadow-lg shadow-red-900/30">
-                  {isEthToStx ? 'S' : '$'}
-                </div>
-                <p className="text-sm font-bold text-white">{isEthToStx ? 'USDCx' : 'USDC'}</p>
-                <p className="text-[10px] uppercase tracking-wider text-white/40 font-mono mt-1">{isEthToStx ? 'STACKS' : 'ETHEREUM'}</p>
-              </div>
-            </div>
-
-            {/* Amount */}
-            <div className="p-5 rounded-xl bg-white/5 border border-white/10">
-              <p className="text-[10px] uppercase tracking-widest text-white/40 mb-2 font-mono">Amount Due</p>
-              <div className="flex items-baseline gap-2">
-                <p className="text-4xl font-bold text-white font-display tracking-tight">
+            {/* Amount - Hero Display */}
+            <div className="text-center space-y-2">
+              <div className="flex items-baseline justify-center gap-2">
+                <span className="text-5xl md:text-6xl font-display font-black text-white tracking-tighter drop-shadow-sm">
                   {formatAmount(invoice.amount)}
-                </p>
-                <span className="text-lg font-medium text-white/40">{isEthToStx ? 'USDC' : 'USDCx'}</span>
+                </span>
+                <span className={`text-xl font-bold font-display ${isEthToStx ? 'text-electric-lime' : 'text-electric-purple'}`}>
+                  {isEthToStx ? 'USDC' : 'USDCx'}
+                </span>
               </div>
+              <p className="text-xs text-white/30 font-mono uppercase tracking-widest">Total Amount Due</p>
             </div>
 
-            {/* Recipient */}
-            <div className="p-5 rounded-xl bg-white/5 border border-white/10">
-              <p className="text-[10px] uppercase tracking-widest text-white/40 mb-2 font-mono">Recipient Address</p>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                  <Wallet className="w-4 h-4 text-white/60" />
+            {/* Visual Route */}
+            <div className="relative h-20 flex items-center justify-between px-4">
+              {/* Connector Line */}
+              <div className="absolute left-10 right-10 top-1/2 -translate-y-1/2 h-[2px] bg-white/5">
+                <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent w-1/2 animate-[shimmer_2s_infinite] ${isEthToStx ? 'via-electric-lime/50' : 'via-electric-purple/50'}`} />
+              </div>
+
+              {/* Source Node */}
+              <div className="relative z-10 flex flex-col items-center gap-2">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-display font-bold shadow-lg border border-white/10 bg-[#1a1033]`}>
+                  <span className="text-white">$</span>
                 </div>
-                <p className="font-mono text-sm text-white/80 break-all leading-relaxed">
-                  {invoice.recipient}
-                </p>
+                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">{isEthToStx ? 'Ethereum' : 'Stacks'}</span>
+              </div>
+
+              {/* Arrow */}
+              <div className="relative z-10 w-8 h-8 rounded-full bg-[#0f081e] border border-white/10 flex items-center justify-center shadow-lg">
+                <ArrowRight className="w-4 h-4 text-white/40" />
+              </div>
+
+              {/* Dest Node */}
+              <div className="relative z-10 flex flex-col items-center gap-2">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-display font-bold shadow-lg border border-white/10 bg-[#1a1033]`}>
+                  <span className={isEthToStx ? 'text-electric-lime' : 'text-white'}>S</span>
+                </div>
+                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">{isEthToStx ? 'Stacks' : 'Ethereum'}</span>
               </div>
             </div>
 
-            {/* Memo (if present) */}
-            {invoice.memo && (
-              <div className="p-5 rounded-xl bg-white/5 border border-white/10">
-                <p className="text-[10px] uppercase tracking-widest text-white/40 mb-2 font-mono">Memo</p>
-                <p className="text-sm text-white/80 italic">
-                  "{invoice.memo}"
-                </p>
+            {/* Details Panel (Inset) */}
+            <div className="rounded-3xl bg-[#0f081e] p-6 shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] border border-white/5 space-y-5">
+              {/* Recipient */}
+              <div className="space-y-1.5">
+                <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest ml-1">Recipient</p>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
+                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                    <Wallet className="w-4 h-4 text-white/60" />
+                  </div>
+                  <p className="font-mono text-xs text-white/80 break-all leading-relaxed">
+                    {invoice.recipient}
+                  </p>
+                </div>
               </div>
-            )}
 
-            {/* Amount Error */}
-            {amountError && (
-              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                {amountError}
-              </div>
-            )}
+              {/* Memo */}
+              {invoice.memo && (
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest ml-1">Memo</p>
+                  <p className="text-sm text-white/60 italic px-2 font-light">
+                    "{invoice.memo}"
+                  </p>
+                </div>
+              )}
+
+              {/* Errors */}
+              {amountError && (
+                <div className="flex items-start gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+                  <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                  <span>{amountError}</span>
+                </div>
+              )}
+              
+              {/* General Error */}
+              {error && (
+                <div className="flex items-start gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+            </div>
 
             {/* Balance Check */}
             {requiredWalletConnected && (
-              <div className={`p-4 rounded-xl border flex items-center justify-between ${hasEnoughBalance ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-red-500/5 border-red-500/20'}`}>
-                <div className="flex items-center gap-3">
-                  <CreditCard className={`w-5 h-5 ${hasEnoughBalance ? 'text-emerald-400' : 'text-red-400'}`} />
-                  <div>
-                    <p className={`text-xs font-bold ${hasEnoughBalance ? 'text-emerald-400' : 'text-red-400'}`}>
-                      {hasEnoughBalance ? 'Sufficient Balance' : 'Insufficient Balance'}
-                    </p>
-                    <p className="text-xs text-white/40 mt-0.5">
-                      Available: {formatAmount(balance)} {isEthToStx ? 'USDC' : 'USDCx'}
-                    </p>
-                  </div>
+              <div className="flex items-center justify-between px-2">
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${hasEnoughBalance ? 'bg-electric-lime shadow-[0_0_5px_#D9FF00]' : 'bg-red-500'}`} />
+                  <span className="text-xs font-bold text-white/60 uppercase tracking-wider">Wallet Balance</span>
                 </div>
+                <span className={`text-sm font-mono ${hasEnoughBalance ? 'text-white' : 'text-red-400'}`}>
+                  {formatAmount(balance)} {isEthToStx ? 'USDC' : 'USDCx'}
+                </span>
               </div>
             )}
 
-            {/* Error */}
-            {error && (
-              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 animate-in fade-in slide-in-from-top-2">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-sm font-bold mb-1">Payment Error</p>
-                    <p className="text-xs text-red-400/80 leading-relaxed">{error}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Success */}
+            {/* Success State */}
             {status === 'success' && txHash && (
-              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 space-y-3 animate-in fade-in slide-in-from-top-2">
-                <div className="flex items-center gap-2 font-bold text-lg">
+              <div className="p-5 rounded-2xl bg-electric-lime/10 border border-electric-lime/20 text-electric-lime space-y-3 animate-in fade-in zoom-in-95 duration-300">
+                <div className="flex items-center justify-center gap-2 font-bold font-display text-lg">
                   <CheckCircle className="w-6 h-6" />
-                  Payment Submitted!
+                  Payment Sent!
                 </div>
-                <p className="text-sm text-emerald-400/80">
-                  Redirecting to tracker...
-                </p>
-                <a 
-                  href={isEthToStx 
-                    ? `${TESTNET.ethereum.blockExplorer}/tx/${txHash}` 
-                    : `${TESTNET.stacks.blockExplorer}/txid/${txHash}?chain=testnet`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs flex items-center gap-1 underline hover:text-white transition-colors w-fit"
-                >
-                  View on Explorer <ExternalLink className="w-3 h-3" />
-                </a>
+                <p className="text-center text-xs text-white/60">Redirecting to tracker...</p>
               </div>
             )}
 
-            {/* Action Button */}
+            {/* Actions */}
             {!requiredWalletConnected ? (
-              <div className="p-6 rounded-xl bg-white/5 border border-white/10 text-center space-y-3">
-                <p className="text-white text-sm font-medium">
-                  Connect your <span className="text-red-400">{isEthToStx ? 'Ethereum' : 'Stacks'}</span> wallet to pay
-                </p>
-                <p className="text-xs text-white/40">
-                  Use the wallet buttons in the top right
-                </p>
+              <div className="text-center space-y-3 py-2">
+                <p className="text-sm font-medium text-white/60">Connect wallet to pay</p>
               </div>
             ) : (
-              isEthToStx ? (
-                <div className="space-y-3">
-                  {/* Approval status indicator */}
-                  {!needsApproval && status !== 'success' && (
-                    <div className="flex items-center gap-2 text-emerald-400 text-sm justify-center py-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                      <CheckCircle className="w-4 h-4" />
-                      <span>USDC Approved</span>
+              <div className="space-y-3 pt-2">
+                {isEthToStx && needsApproval && status !== 'success' && (
+                  <div className="bg-[#0f081e] p-4 rounded-2xl border border-white/5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-white/40 uppercase tracking-widest">Allowance</span>
+                      <button onClick={handleRefreshAllowance} className="text-white/40 hover:text-white transition-colors">
+                        <RefreshCw className={`w-3 h-3 ${isRefreshingAllowance ? 'animate-spin' : ''}`} />
+                      </button>
                     </div>
-                  )}
-                  
-                  {/* Allowance display with refresh button */}
-                  {isEthConnected && (
-                    <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-[10px] uppercase tracking-widest text-white/40 font-mono">Current Allowance</p>
-                        <button
-                          onClick={handleRefreshAllowance}
-                          disabled={isRefreshingAllowance || status === 'approving'}
-                          className="p-1 rounded hover:bg-white/10 text-white/60 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Refresh allowance"
-                        >
-                          <RefreshCw className={`w-3 h-3 ${isRefreshingAllowance ? 'animate-spin' : ''}`} />
-                        </button>
-                      </div>
-                      <div className="flex items-baseline gap-2">
-                        <p className="text-2xl font-bold text-white font-display">
-                          {formatAmount(formatUnits(allowance, 6))}
-                        </p>
-                        <span className="text-sm text-white/40">USDC</span>
-                      </div>
-                      <p className="text-xs text-white/40 mt-1">
-                        {needsApproval 
-                          ? `Need ${formatAmount(invoice.amount)} USDC approval to continue`
-                          : 'Ready to bridge'}
-                      </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xl font-display font-bold text-white">{formatAmount(formatUnits(allowance, 6))}</span>
+                      <span className="text-xs font-mono text-white/40">Approved</span>
                     </div>
-                  )}
-                  
-                  <Button 
-                    className="w-full h-16 text-lg bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-lg shadow-red-900/20 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                    onClick={handlePay}
-                    disabled={status === 'approving' || status === 'bridging' || status === 'success' || !hasEnoughBalance || !meetsMinimum}
-                  >
-                    {(status === 'approving' || status === 'bridging') && (
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    )}
-                    {status === 'approving' ? 'Approving USDC...' :
-                     status === 'bridging' ? 'Bridging to Stacks...' :
-                     status === 'success' ? 'Payment Sent!' :
-                     needsApproval ? `Approve ${formatAmount(invoice.amount)} USDC` :
-                     `Bridge ${formatAmount(invoice.amount)} USDC`}
-                  </Button>
-                </div>
-              ) : (
+                  </div>
+                )}
+
                 <Button 
-                  className="w-full h-16 text-lg bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-lg shadow-red-900/20 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                  onClick={handlePay}
-                  disabled={status === 'bridging' || status === 'success' || !hasEnoughBalance || !meetsMinimum}
+                  className={`w-full h-16 text-lg font-bold rounded-2xl shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] ${
+                    needsApproval && isEthToStx
+                      ? 'bg-electric-purple hover:bg-electric-purple/90 shadow-[0_0_20px_-5px_rgba(189,0,255,0.4)] text-white' 
+                      : 'clay-btn-primary text-black'
+                  }`}
+                  onClick={isEthToStx && needsApproval ? handleApprove : handlePay}
+                  disabled={status === 'approving' || status === 'bridging' || status === 'success' || !hasEnoughBalance || !meetsMinimum}
                 >
-                  {status === 'bridging' && (
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  {(status === 'approving' || status === 'bridging') && (
+                    <Loader2 className="w-5 h-5 mr-3 animate-spin" />
                   )}
-                  {status === 'bridging' ? 'Processing...' :
-                   status === 'success' ? 'Payment Sent!' :
-                   `Pay ${formatAmount(invoice.amount)} USDCx`}
+                  {status === 'approving' ? 'Approving USDC...' :
+                   status === 'bridging' ? 'Processing Bridge...' :
+                   status === 'success' ? 'Success!' :
+                   needsApproval && isEthToStx ? `Approve ${formatAmount(invoice.amount)} USDC` :
+                   `Pay ${formatAmount(invoice.amount)} ${isEthToStx ? 'USDC' : 'USDCx'}`}
                 </Button>
-              )
+              </div>
             )}
 
             {/* Footer Info */}
-            <div className="text-center text-[10px] text-white/30 pt-2 font-mono uppercase tracking-widest space-y-1">
-              <p>Estimated completion: ~{isEthToStx ? '15' : '25'} minutes</p>
-              <p>Network fee: {isEthToStx ? 'Gas only' : '~$4.80 bridging fee'}</p>
+            <div className="text-center space-y-1 pt-4 border-t border-white/5">
+              <p className="text-[10px] text-white/20 font-mono uppercase tracking-[0.2em]">
+                Est. Time: ~{isEthToStx ? '15' : '25'} min
+              </p>
             </div>
 
           </CardContent>
