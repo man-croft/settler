@@ -6,26 +6,26 @@ import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-full text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
   {
     variants: {
       variant: {
-        default: "clay-btn-primary",
+        default: "bg-orbital-orange text-black hover:bg-orbital-orange/90 shadow-lg shadow-orbital-orange/20 border border-orbital-orange/50",
         destructive:
-          "clay-btn bg-destructive hover:bg-destructive/90 text-white shadow-none",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
-          "clay-btn hover:text-white",
+          "border border-white/10 bg-white/5 hover:bg-white/10 hover:text-white backdrop-blur-sm",
         secondary:
-          "clay-btn bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-white/5 hover:text-white",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        accent: "clay-btn bg-electric-purple text-white hover:bg-electric-purple/90", 
+        accent: "bg-orbital-blue text-white hover:bg-orbital-blue/90 shadow-lg shadow-orbital-blue/20",
       },
       size: {
-        default: "h-12 px-6 py-2",
-        sm: "h-10 rounded-full px-4 text-xs",
-        lg: "h-14 rounded-full px-8 text-base",
-        icon: "h-12 w-12",
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-md px-3",
+        lg: "h-12 rounded-lg px-8 text-base",
+        icon: "h-10 w-10",
       },
     },
     defaultVariants: {
