@@ -52,43 +52,41 @@ function StepIndicator({
   const stepIndex = statusOrder.indexOf(step.id)
   const currentIndex = statusOrder.indexOf(currentStatus)
   
-  // A step is complete if we've passed it OR if status is 'complete' (all steps done)
   const isComplete = stepIndex < currentIndex || currentStatus === 'complete'
-  // A step is current only if it matches the current status AND we're not complete yet
   const isCurrent = step.id === currentStatus && currentStatus !== 'complete'
   const isFailed = currentStatus === 'failed' && step.id === currentStatus
 
   return (
-    <div className="flex gap-6 group">
+    <div className="flex gap-4 group">
       <div className="flex flex-col items-center">
         <div
           className={cn(
-            'h-12 w-12 rounded-full flex items-center justify-center border-2 transition-all duration-500 relative z-10',
-            isComplete && 'bg-electric-lime border-electric-lime shadow-[0_0_20px_rgba(217,255,0,0.4)] scale-110',
-            isCurrent && !isFailed && 'border-electric-lime bg-electric-lime/10 shadow-[0_0_15px_rgba(217,255,0,0.2)] animate-pulse',
-            isFailed && 'bg-red-500 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.4)]',
-            !isComplete && !isCurrent && 'border-white/10 bg-[#0f081e] shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]'
+            'h-8 w-8 rounded-full flex items-center justify-center border-2 transition-all duration-500 relative z-10',
+            isComplete && 'bg-electric-lime border-electric-lime shadow-[0_0_15px_rgba(217,255,0,0.3)] scale-110',
+            isCurrent && !isFailed && 'border-electric-lime bg-electric-lime/10 shadow-[0_0_10px_rgba(217,255,0,0.2)] animate-pulse',
+            isFailed && 'bg-red-500 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]',
+            !isComplete && !isCurrent && 'border-white/10 bg-[#0f081e] shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)]'
           )}
         >
-          {isComplete && <CheckCircle className="h-6 w-6 text-black" />}
-          {isCurrent && !isFailed && <Loader2 className="h-6 w-6 text-electric-lime animate-spin" />}
-          {isFailed && <XCircle className="h-6 w-6 text-white" />}
-          {!isComplete && !isCurrent && <Clock className="h-5 w-5 text-white/10" />}
+          {isComplete && <CheckCircle className="h-4 w-4 text-black" />}
+          {isCurrent && !isFailed && <Loader2 className="h-4 w-4 text-electric-lime animate-spin" />}
+          {isFailed && <XCircle className="h-4 w-4 text-white" />}
+          {!isComplete && !isCurrent && <Clock className="h-3 w-3 text-white/10" />}
         </div>
         {!isLast && (
           <div
             className={cn(
-              'w-[2px] flex-1 min-h-[50px] transition-colors duration-700',
-              isComplete ? 'bg-electric-lime shadow-[0_0_10px_rgba(217,255,0,0.3)]' : 'bg-white/5'
+              'w-[2px] flex-1 min-h-[30px] transition-colors duration-700',
+              isComplete ? 'bg-electric-lime shadow-[0_0_8px_rgba(217,255,0,0.2)]' : 'bg-white/5'
             )}
           />
         )}
       </div>
 
-      <div className="pb-10 pt-2 flex-1">
+      <div className="pb-6 pt-1 flex-1">
         <h3
           className={cn(
-            'font-bold text-lg font-display mb-1 transition-colors duration-300',
+            'font-bold text-sm font-display mb-0.5 transition-colors duration-300',
             isComplete && 'text-electric-lime',
             isCurrent && !isFailed && 'text-white drop-shadow-sm',
             isFailed && 'text-red-400',
@@ -98,7 +96,7 @@ function StepIndicator({
           {step.label}
         </h3>
         <p className={cn(
-          "text-sm leading-relaxed transition-colors duration-300 font-light",
+          "text-[10px] leading-relaxed transition-colors duration-300 font-light",
           isCurrent ? "text-white/80" : "text-white/30"
         )}>{step.description}</p>
       </div>
@@ -111,7 +109,7 @@ export function TrackPage() {
   const txHash = searchParams.get('tx') as `0x${string}` | null
   const direction = searchParams.get('dir') as 'ETH_TO_STX' | 'STX_TO_ETH' | null
   const recipient = searchParams.get('to')
-  const hookData = searchParams.get('hookData') // Unique identifier for tracking mint
+  const hookData = searchParams.get('hookData')
   
   const publicClient = usePublicClient()
   
@@ -168,7 +166,6 @@ export function TrackPage() {
     if (tracking.status !== 'bridging' || direction !== 'ETH_TO_STX') return
     
     try {
-      // Query contract events from the USDCx-v1 contract
       const response = await fetch(
         `https://api.testnet.hiro.so/extended/v1/contract/${TESTNET.stacks.usdcxV1}/events?limit=50`
       )
@@ -176,25 +173,18 @@ export function TrackPage() {
       if (response.ok) {
         const data = await response.json()
         
-        // Find a mint event that matches our hookData or recipient
         const mintEvent = data.results?.find((event: any) => {
           if (event.event_type !== 'smart_contract_log') return false
           
           const repr = event.contract_log?.value?.repr || ''
           
-          // Check if this is a mint event
           if (!repr.includes('(topic "mint")') && !repr.includes('(topic \\"mint\\")')) return false
           
-          // If we have hookData and it's not empty (0x), match by hookData (most reliable)
           if (hookData && hookData !== '0x' && hookData.length > 2) {
-            // The hookData in the event looks like: (hook-data 0x1234...)
-            // Our hookData is like: 0x1234...
             const hookDataWithoutPrefix = hookData.replace('0x', '').toLowerCase()
             return repr.toLowerCase().includes(`(hook-data 0x${hookDataWithoutPrefix})`)
           }
           
-          // Fallback: match by recipient address
-          // Clarity principal format: 'STADDRESS (no closing quote)
           if (recipient) {
             return repr.includes(`(remote-recipient '${recipient})`)
           }
@@ -262,9 +252,8 @@ export function TrackPage() {
     if (!recipient || !publicClient || tracking.status !== 'bridging' || direction !== 'STX_TO_ETH') return
     
     try {
-      // Check for recent USDC transfer events to the recipient
       const currentBlock = await publicClient.getBlockNumber()
-      const fromBlock = currentBlock - 1000n // Check last ~1000 blocks
+      const fromBlock = currentBlock - 1000n
       
       const logs = await publicClient.getLogs({
         address: TESTNET.ethereum.usdc,
@@ -284,7 +273,6 @@ export function TrackPage() {
         toBlock: currentBlock,
       })
 
-      // Find the most recent transfer from xReserve contract
       const releaseLog = logs.find(log => 
         log.address.toLowerCase() === TESTNET.ethereum.usdc.toLowerCase()
       )
@@ -306,7 +294,6 @@ export function TrackPage() {
   useEffect(() => {
     if (!isPolling || !txHash) return
     
-    // Initial check
     if (direction === 'ETH_TO_STX') {
       checkEthTxStatus()
     } else {
@@ -321,7 +308,6 @@ export function TrackPage() {
           checkStacksMint()
         }
       } else {
-        // STX_TO_ETH
         if (tracking.status === 'pending' || tracking.status === 'confirming') {
           checkStacksBurn()
         } else if (tracking.status === 'bridging') {
@@ -368,9 +354,7 @@ export function TrackPage() {
     return (
       <Layout>
         <div className="max-w-md mx-auto text-center py-20">
-          <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-            <AlertCircle className="w-10 h-10 text-white/20" />
-          </div>
+          <AlertCircle className="w-16 h-16 text-white/20 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-white mb-2 font-display">No Transaction</h1>
           <p className="text-white/40 mb-8 font-light">
             Please provide a transaction hash to track.
@@ -388,41 +372,41 @@ export function TrackPage() {
 
   return (
     <Layout>
-      <div className="max-w-xl mx-auto space-y-8">
+      <div className="max-w-lg mx-auto space-y-4 pt-2">
         <div className="text-center relative">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-electric-purple/20 blur-[80px] rounded-full pointer-events-none" />
-          <h1 className="text-3xl font-display font-black text-white mb-2 tracking-wide drop-shadow-sm relative z-10">Bridge Status</h1>
-          <p className="text-white/60 font-light relative z-10">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-electric-purple/20 blur-[60px] rounded-full pointer-events-none" />
+          <h1 className="text-3xl font-display font-black text-white mb-1 tracking-wide drop-shadow-sm relative z-10">Bridge Status</h1>
+          <p className="text-white/60 font-light text-sm relative z-10">
             Tracking your cross-chain transfer
           </p>
         </div>
 
         <Card className="clay-card overflow-visible">
-          <CardHeader className="pb-6 border-b border-white/5">
+          <CardHeader className="pb-4 pt-5 border-b border-white/5">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-xl text-white font-display flex items-center gap-3">
+              <CardTitle className="text-lg text-white font-display flex items-center gap-3">
                 <span className={direction === 'STX_TO_ETH' ? 'text-electric-lime' : 'text-white'}>
                   {direction === 'STX_TO_ETH' ? 'USDCx' : 'USDC'}
                 </span>
-                <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center">
+                <div className="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center">
                   <ArrowRight className="w-3 h-3 text-white/40" />
                 </div>
                 <span className={direction === 'STX_TO_ETH' ? 'text-white' : 'text-electric-lime'}>
                   {direction === 'STX_TO_ETH' ? 'USDC' : 'USDCx'}
                 </span>
               </CardTitle>
-              <div className="flex items-center gap-2 text-xs font-mono text-electric-lime bg-electric-lime/10 px-3 py-1.5 rounded-lg border border-electric-lime/20 shadow-[0_0_10px_-2px_rgba(217,255,0,0.3)]">
+              <div className="flex items-center gap-2 text-[10px] font-mono text-electric-lime bg-electric-lime/10 px-2 py-1 rounded-lg border border-electric-lime/20 shadow-[0_0_10px_-2px_rgba(217,255,0,0.3)]">
                 <Clock className="h-3 w-3 animate-pulse" />
                 {formatElapsedTime(elapsedTime)}
               </div>
             </div>
           </CardHeader>
 
-          <CardContent className="pt-8 pb-8 px-8">
+          <CardContent className="pt-6 pb-6 px-6">
             {/* Steps Visualizer */}
             <div className="relative">
               {/* Vertical line background for steps */}
-              <div className="absolute left-[23px] top-4 bottom-10 w-[2px] bg-white/5 -z-10" />
+              <div className="absolute left-[15px] top-3 bottom-8 w-[2px] bg-white/5 -z-10" />
               
               <div className="space-y-0">
                 {steps.map((step, index) => (
@@ -437,15 +421,15 @@ export function TrackPage() {
             </div>
 
             {/* Transaction Details - Inset Panel */}
-            <div className="mt-8 space-y-3 bg-[#0f081e] p-6 rounded-3xl shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] border border-white/5">
+            <div className="mt-4 space-y-2 bg-[#0f081e] p-4 rounded-2xl shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] border border-white/5">
               
               {/* Deposit/Burn TX */}
               <div className="flex items-center justify-between group">
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-white/30 font-bold mb-1">
+                  <p className="text-[9px] uppercase tracking-widest text-white/30 font-bold mb-0.5">
                     {direction === 'STX_TO_ETH' ? 'Burn Transaction' : 'Deposit Transaction'}
                   </p>
-                  <p className="text-sm font-mono text-white/80 group-hover:text-white transition-colors">
+                  <p className="text-xs font-mono text-white/80 group-hover:text-white transition-colors">
                     {shortenAddress(txHash, 8)}
                   </p>
                 </div>
@@ -456,17 +440,17 @@ export function TrackPage() {
                   }
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all hover:scale-110"
+                  className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all hover:scale-110"
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  <ExternalLink className="h-3 w-3" />
                 </a>
               </div>
 
               {/* Status Badges */}
               {(tracking.ethTxConfirmed || tracking.stacksBurnConfirmed) && (
-                <div className="pt-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
-                    <CheckCircle className="w-3 h-3" />
+                <div className="pt-1">
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-medium">
+                    <CheckCircle className="w-2.5 h-2.5" />
                     {tracking.ethTxConfirmed ? `Confirmed in block #${tracking.ethTxBlockNumber}` : 'Burn confirmed on Stacks'}
                   </div>
                 </div>
@@ -474,11 +458,11 @@ export function TrackPage() {
 
               {/* Mint TX (if available) */}
               {tracking.stacksMintTxId && (
-                <div className="pt-4 border-t border-white/5 mt-4 animate-in fade-in slide-in-from-left-2">
+                <div className="pt-3 border-t border-white/5 mt-2 animate-in fade-in slide-in-from-left-2">
                   <div className="flex items-center justify-between group">
                     <div>
-                      <p className="text-[10px] uppercase tracking-widest text-electric-lime/60 font-bold mb-1">Stacks Mint Transaction</p>
-                      <p className="text-sm font-mono text-white/80 group-hover:text-electric-lime transition-colors">
+                      <p className="text-[9px] uppercase tracking-widest text-electric-lime/60 font-bold mb-0.5">Stacks Mint Transaction</p>
+                      <p className="text-xs font-mono text-white/80 group-hover:text-electric-lime transition-colors">
                         {shortenAddress(tracking.stacksMintTxId, 8)}
                       </p>
                     </div>
@@ -486,9 +470,9 @@ export function TrackPage() {
                       href={`${TESTNET.stacks.blockExplorer}/txid/${tracking.stacksMintTxId}?chain=testnet`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-8 h-8 rounded-full bg-electric-lime/10 flex items-center justify-center text-electric-lime hover:bg-electric-lime/20 transition-all hover:scale-110"
+                      className="w-7 h-7 rounded-full bg-electric-lime/10 flex items-center justify-center text-electric-lime hover:bg-electric-lime/20 transition-all hover:scale-110"
                     >
-                      <ExternalLink className="h-4 w-4" />
+                      <ExternalLink className="h-3 w-3" />
                     </a>
                   </div>
                 </div>
@@ -496,11 +480,11 @@ export function TrackPage() {
 
               {/* Release TX (if available) */}
               {tracking.ethReleaseTxHash && (
-                <div className="pt-4 border-t border-white/5 mt-4 animate-in fade-in slide-in-from-left-2">
+                <div className="pt-3 border-t border-white/5 mt-2 animate-in fade-in slide-in-from-left-2">
                   <div className="flex items-center justify-between group">
                     <div>
-                      <p className="text-[10px] uppercase tracking-widest text-electric-lime/60 font-bold mb-1">Ethereum Release Transaction</p>
-                      <p className="text-sm font-mono text-white/80 group-hover:text-electric-lime transition-colors">
+                      <p className="text-[9px] uppercase tracking-widest text-electric-lime/60 font-bold mb-0.5">Ethereum Release Transaction</p>
+                      <p className="text-xs font-mono text-white/80 group-hover:text-electric-lime transition-colors">
                         {shortenAddress(tracking.ethReleaseTxHash, 8)}
                       </p>
                     </div>
@@ -508,9 +492,9 @@ export function TrackPage() {
                       href={`${TESTNET.ethereum.blockExplorer}/tx/${tracking.ethReleaseTxHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-8 h-8 rounded-full bg-electric-lime/10 flex items-center justify-center text-electric-lime hover:bg-electric-lime/20 transition-all hover:scale-110"
+                      className="w-7 h-7 rounded-full bg-electric-lime/10 flex items-center justify-center text-electric-lime hover:bg-electric-lime/20 transition-all hover:scale-110"
                     >
-                      <ExternalLink className="h-4 w-4" />
+                      <ExternalLink className="h-3 w-3" />
                     </a>
                   </div>
                 </div>
@@ -518,12 +502,12 @@ export function TrackPage() {
 
               {/* Error State */}
               {tracking.error && (
-                <div className="pt-4 border-t border-white/5 mt-4">
-                  <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-red-400 mt-0.5" />
+                <div className="pt-3 border-t border-white/5 mt-2">
+                  <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-400 mt-0.5" />
                     <div>
-                      <p className="text-sm font-bold text-red-400">Error</p>
-                      <p className="text-xs text-red-400/80">{tracking.error}</p>
+                      <p className="text-xs font-bold text-red-400">Error</p>
+                      <p className="text-[10px] text-red-400/80">{tracking.error}</p>
                     </div>
                   </div>
                 </div>
@@ -532,9 +516,9 @@ export function TrackPage() {
 
             {/* Waiting Message */}
             {tracking.status === 'bridging' && (
-              <div className="mt-4 p-4 rounded-2xl bg-white/5 border border-white/5 flex items-start gap-3 animate-pulse">
-                <Loader2 className="w-5 h-5 text-white/40 animate-spin mt-0.5" />
-                <p className="text-xs text-white/40 leading-relaxed font-light">
+              <div className="mt-3 p-3 rounded-xl bg-white/5 border border-white/5 flex items-start gap-2 animate-pulse">
+                <Loader2 className="w-4 h-4 text-white/40 animate-spin mt-0.5" />
+                <p className="text-[10px] text-white/40 leading-relaxed font-light">
                   Circle's attestation service is verifying. <br/>
                   Est. time: <span className="text-white/60 font-medium">{direction === 'ETH_TO_STX' ? '~15' : '~25'} minutes</span>
                 </p>
@@ -543,37 +527,37 @@ export function TrackPage() {
 
             {/* Success Message */}
             {tracking.status === 'complete' && (
-              <div className="mt-6 p-6 rounded-3xl bg-electric-lime text-black shadow-[0_0_30px_-5px_rgba(217,255,0,0.5)] flex flex-col items-center text-center gap-3 animate-in zoom-in-95 duration-300">
-                <div className="w-12 h-12 rounded-full bg-black/10 flex items-center justify-center mb-1">
-                  <CheckCircle className="w-6 h-6 text-black" />
+              <div className="mt-4 p-4 rounded-2xl bg-electric-lime text-black shadow-[0_0_20px_-5px_rgba(217,255,0,0.5)] flex flex-col items-center text-center gap-2 animate-in zoom-in-95 duration-300">
+                <div className="w-8 h-8 rounded-full bg-black/10 flex items-center justify-center mb-0.5">
+                  <CheckCircle className="w-5 h-5 text-black" />
                 </div>
-                <h3 className="font-display font-bold text-2xl">Bridge Complete!</h3>
-                <p className="text-sm opacity-60 max-w-[200px] leading-snug">
-                  Your funds have been delivered successfully.
+                <h3 className="font-display font-bold text-xl">Bridge Complete!</h3>
+                <p className="text-xs opacity-60 max-w-[200px] leading-snug">
+                  Your funds have been delivered.
                 </p>
               </div>
             )}
           </CardContent>
 
-          <CardFooter className="flex gap-4 pt-2 pb-8 px-8">
+          <CardFooter className="flex gap-3 pt-2 pb-6 px-6">
             <Button 
               variant="outline" 
-              className="flex-1 border-white/10 hover:bg-white/5 hover:text-white text-white/60 h-14 rounded-2xl"
+              className="flex-1 border-white/10 hover:bg-white/5 hover:text-white text-white/60 h-12 rounded-xl text-sm"
               onClick={handleRefresh}
               disabled={tracking.status === 'complete'}
             >
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <RefreshCw className="h-3.5 w-3.5 mr-2" />
               Refresh
             </Button>
             <Link to="/treasury" className="flex-1">
-              <Button className="w-full bg-white text-black hover:bg-white/90 h-14 rounded-2xl font-bold shadow-lg">
+              <Button className="w-full bg-white text-black hover:bg-white/90 h-12 rounded-xl font-bold shadow-lg text-sm">
                 View Treasury
               </Button>
             </Link>
           </CardFooter>
         </Card>
 
-        <p className="text-center text-[10px] text-white/20 mt-6 font-mono uppercase tracking-widest">
+        <p className="text-center text-[10px] text-white/20 mt-4 font-mono uppercase tracking-widest">
           Last checked: {tracking.lastChecked.toLocaleTimeString()}
         </p>
       </div>
