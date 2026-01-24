@@ -43,9 +43,9 @@ export function HomePage() {
               <span className="text-gradient-electric drop-shadow-[0_0_30px_rgba(217,255,0,0.3)]">BITCOIN.</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-white/60 max-w-2xl mx-auto font-light mt-8 leading-relaxed">
+            <p className="text-xl md:text-2xl text-white/80 max-w-2xl mx-auto font-light mt-8 leading-relaxed">
               The financial OS for the Bitcoin economy. <br/>
-              Get paid in <span className="text-white font-medium">USDC</span>. Settle in <span className="text-electric-lime font-medium">USDCx</span>.
+              Get paid in <span className="text-white font-semibold">USDC</span>. Settle in <span className="text-electric-lime font-semibold">USDCx</span>.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-12">
@@ -111,7 +111,7 @@ export function HomePage() {
                   <feature.icon className="h-8 w-8" />
                 </div>
                 <h3 className="font-display font-bold text-xl text-white">{feature.title}</h3>
-                <p className="text-white/50 leading-relaxed font-light">{feature.description}</p>
+                <p className="text-white/70 leading-relaxed font-light">{feature.description}</p>
               </CardContent>
             </Card>
           ))}

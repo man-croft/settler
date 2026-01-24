@@ -131,7 +131,7 @@ export function CreatePage() {
             
             {/* Direction Selector */}
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] ml-1">Payment Direction</label>
+              <label className="text-[10px] font-bold text-white/50 uppercase tracking-[0.2em] ml-1">Payment Direction</label>
               <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={() => setDirection('ETH_TO_STX')}
@@ -145,7 +145,7 @@ export function CreatePage() {
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-display font-bold shadow-md transition-colors ${
                       isEthToStx ? 'bg-electric-lime text-black' : 'bg-white/10 text-white'
                     }`}>$</div>
-                    <ArrowRight className={`w-3 h-3 transition-colors ${isEthToStx ? 'text-electric-lime' : 'text-white/20'}`} />
+                    <ArrowRight className={`w-3 h-3 transition-colors ${isEthToStx ? 'text-electric-lime' : 'text-white/30'}`} />
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-display font-bold shadow-md transition-colors ${
                       isEthToStx ? 'bg-white/10 text-white border border-white/10' : 'bg-white/5 text-white/40'
                     }`}>S</div>
@@ -165,7 +165,7 @@ export function CreatePage() {
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-display font-bold shadow-md transition-colors ${
                       !isEthToStx ? 'bg-electric-purple text-white' : 'bg-white/10 text-white'
                     }`}>S</div>
-                    <ArrowRight className={`w-3 h-3 transition-colors ${!isEthToStx ? 'text-electric-purple' : 'text-white/20'}`} />
+                    <ArrowRight className={`w-3 h-3 transition-colors ${!isEthToStx ? 'text-electric-purple' : 'text-white/30'}`} />
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-display font-bold shadow-md transition-colors ${
                       !isEthToStx ? 'bg-white/10 text-white border border-white/10' : 'bg-white/5 text-white/40'
                     }`}>$</div>
@@ -177,13 +177,13 @@ export function CreatePage() {
 
             {/* Amount Input */}
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] ml-1">Amount</label>
+              <label className="text-[10px] font-bold text-white/50 uppercase tracking-[0.2em] ml-1">Amount</label>
               <div className="relative group">
                 <Input 
                   type="text" 
                   placeholder="0.00"
                   inputMode="decimal"
-                  className="h-16 text-3xl pl-5 pr-24 font-display tracking-tight transition-all focus:ring-2 focus:ring-electric-lime/20"
+                  className="h-16 text-3xl pl-5 pr-24 font-display tracking-tight transition-all focus:ring-2 focus:ring-electric-lime/20 text-white placeholder:text-white/20 bg-[#08040d]"
                   value={amount}
                   onChange={(e) => handleAmountChange(e.target.value)}
                 />
@@ -194,21 +194,21 @@ export function CreatePage() {
                   </span>
                 </div>
               </div>
-              <p className="text-[10px] text-white/30 px-1 flex items-center gap-1 font-mono">
+              <p className="text-[10px] text-white/40 px-1 flex items-center gap-1 font-mono">
                 Min: {isEthToStx ? '1.00' : '4.80'}
               </p>
             </div>
 
             {/* Recipient Input */}
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] ml-1">
+              <label className="text-[10px] font-bold text-white/50 uppercase tracking-[0.2em] ml-1">
                 Recipient
               </label>
               <div className="relative group">
                 <Input 
                   type="text" 
                   placeholder={isEthToStx ? "ST... or name.btc" : "0x... or name.eth"}
-                  className={`h-12 pl-5 pr-10 font-mono text-sm tracking-wide transition-all ${
+                  className={`h-12 pl-5 pr-10 font-mono text-sm tracking-wide transition-all bg-[#08040d] text-white placeholder:text-white/20 ${
                     resolvedAddress ? 'ring-1 ring-electric-lime/50' : 
                     validationError ? 'ring-1 ring-red-500/50' : ''
                   }`}

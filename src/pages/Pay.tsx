@@ -429,15 +429,15 @@ export function PayPage() {
             </div>
 
             {/* Details Panel (Inset) */}
-            <div className="rounded-2xl bg-[#0f081e] p-4 shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] border border-white/5 space-y-3">
+            <div className="rounded-2xl bg-[#08040d] p-4 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] border border-white/10 space-y-3">
               {/* Recipient */}
               <div className="space-y-1">
-                <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest ml-1">Recipient</p>
-                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/5">
+                <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest ml-1">Recipient</p>
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/5 group hover:bg-white/10 transition-colors">
                   <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                    <Wallet className="w-3 h-3 text-white/60" />
+                    <Wallet className="w-3 h-3 text-white/70" />
                   </div>
-                  <p className="font-mono text-[11px] text-white/80 break-all leading-relaxed">
+                  <p className="font-mono text-xs text-white break-all leading-relaxed">
                     {invoice.recipient}
                   </p>
                 </div>
@@ -446,8 +446,8 @@ export function PayPage() {
               {/* Memo */}
               {invoice.memo && (
                 <div className="space-y-1">
-                  <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest ml-1">Memo</p>
-                  <p className="text-xs text-white/60 italic px-2 font-light">
+                  <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest ml-1">Memo</p>
+                  <p className="text-sm text-white/90 italic px-2 font-medium">
                     "{invoice.memo}"
                   </p>
                 </div>

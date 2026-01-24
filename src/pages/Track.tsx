@@ -87,17 +87,17 @@ function StepIndicator({
         <h3
           className={cn(
             'font-bold text-sm font-display mb-0.5 transition-colors duration-300',
-            isComplete && 'text-electric-lime',
-            isCurrent && !isFailed && 'text-white drop-shadow-sm',
+            isComplete && 'text-electric-lime drop-shadow-[0_0_8px_rgba(217,255,0,0.5)]',
+            isCurrent && !isFailed && 'text-white drop-shadow-md',
             isFailed && 'text-red-400',
-            !isComplete && !isCurrent && 'text-white/20'
+            !isComplete && !isCurrent && 'text-white/40'
           )}
         >
           {step.label}
         </h3>
         <p className={cn(
-          "text-[10px] leading-relaxed transition-colors duration-300 font-light",
-          isCurrent ? "text-white/80" : "text-white/30"
+          "text-[11px] leading-relaxed transition-colors duration-300 font-medium",
+          isCurrent ? "text-white/90" : "text-white/50"
         )}>{step.description}</p>
       </div>
     </div>
@@ -421,15 +421,15 @@ export function TrackPage() {
             </div>
 
             {/* Transaction Details - Inset Panel */}
-            <div className="mt-4 space-y-2 bg-[#0f081e] p-4 rounded-2xl shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] border border-white/5">
+            <div className="mt-4 space-y-2 bg-[#0a0512] p-4 rounded-2xl shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] border border-white/10">
               
               {/* Deposit/Burn TX */}
               <div className="flex items-center justify-between group">
                 <div>
-                  <p className="text-[9px] uppercase tracking-widest text-white/30 font-bold mb-0.5">
+                  <p className="text-[10px] uppercase tracking-widest text-white/50 font-bold mb-0.5">
                     {direction === 'STX_TO_ETH' ? 'Burn Transaction' : 'Deposit Transaction'}
                   </p>
-                  <p className="text-xs font-mono text-white/80 group-hover:text-white transition-colors">
+                  <p className="text-sm font-mono text-white group-hover:text-electric-lime transition-colors">
                     {shortenAddress(txHash, 8)}
                   </p>
                 </div>
@@ -440,17 +440,17 @@ export function TrackPage() {
                   }
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all hover:scale-110"
+                  className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all hover:scale-110"
                 >
-                  <ExternalLink className="h-3 w-3" />
+                  <ExternalLink className="h-4 w-4" />
                 </a>
               </div>
 
               {/* Status Badges */}
               {(tracking.ethTxConfirmed || tracking.stacksBurnConfirmed) && (
                 <div className="pt-1">
-                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-medium">
-                    <CheckCircle className="w-2.5 h-2.5" />
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-semibold">
+                    <CheckCircle className="w-3 h-3" />
                     {tracking.ethTxConfirmed ? `Confirmed in block #${tracking.ethTxBlockNumber}` : 'Burn confirmed on Stacks'}
                   </div>
                 </div>
@@ -461,8 +461,8 @@ export function TrackPage() {
                 <div className="pt-3 border-t border-white/5 mt-2 animate-in fade-in slide-in-from-left-2">
                   <div className="flex items-center justify-between group">
                     <div>
-                      <p className="text-[9px] uppercase tracking-widest text-electric-lime/60 font-bold mb-0.5">Stacks Mint Transaction</p>
-                      <p className="text-xs font-mono text-white/80 group-hover:text-electric-lime transition-colors">
+                      <p className="text-[10px] uppercase tracking-widest text-electric-lime/80 font-bold mb-0.5">Stacks Mint Transaction</p>
+                      <p className="text-sm font-mono text-white group-hover:text-electric-lime transition-colors">
                         {shortenAddress(tracking.stacksMintTxId, 8)}
                       </p>
                     </div>
@@ -470,9 +470,9 @@ export function TrackPage() {
                       href={`${TESTNET.stacks.blockExplorer}/txid/${tracking.stacksMintTxId}?chain=testnet`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-7 h-7 rounded-full bg-electric-lime/10 flex items-center justify-center text-electric-lime hover:bg-electric-lime/20 transition-all hover:scale-110"
+                      className="w-8 h-8 rounded-full bg-electric-lime/10 flex items-center justify-center text-electric-lime hover:bg-electric-lime/20 transition-all hover:scale-110"
                     >
-                      <ExternalLink className="h-3 w-3" />
+                      <ExternalLink className="h-4 w-4" />
                     </a>
                   </div>
                 </div>
@@ -483,8 +483,8 @@ export function TrackPage() {
                 <div className="pt-3 border-t border-white/5 mt-2 animate-in fade-in slide-in-from-left-2">
                   <div className="flex items-center justify-between group">
                     <div>
-                      <p className="text-[9px] uppercase tracking-widest text-electric-lime/60 font-bold mb-0.5">Ethereum Release Transaction</p>
-                      <p className="text-xs font-mono text-white/80 group-hover:text-electric-lime transition-colors">
+                      <p className="text-[10px] uppercase tracking-widest text-electric-lime/80 font-bold mb-0.5">Ethereum Release Transaction</p>
+                      <p className="text-sm font-mono text-white group-hover:text-electric-lime transition-colors">
                         {shortenAddress(tracking.ethReleaseTxHash, 8)}
                       </p>
                     </div>
@@ -492,9 +492,9 @@ export function TrackPage() {
                       href={`${TESTNET.ethereum.blockExplorer}/tx/${tracking.ethReleaseTxHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-7 h-7 rounded-full bg-electric-lime/10 flex items-center justify-center text-electric-lime hover:bg-electric-lime/20 transition-all hover:scale-110"
+                      className="w-8 h-8 rounded-full bg-electric-lime/10 flex items-center justify-center text-electric-lime hover:bg-electric-lime/20 transition-all hover:scale-110"
                     >
-                      <ExternalLink className="h-3 w-3" />
+                      <ExternalLink className="h-4 w-4" />
                     </a>
                   </div>
                 </div>
