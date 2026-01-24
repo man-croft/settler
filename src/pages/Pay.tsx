@@ -168,7 +168,18 @@ export function PayPage() {
   }
 
   const handleApprove = async () => {
-    if (!invoice || !walletClient || !publicClient) return
+    if (!invoice) return
+    
+    if (!walletClient) {
+      setError('Wallet not connected or not ready. Please try reconnecting.')
+      return
+    }
+    
+    if (!publicClient) {
+      setError('Network connection not ready.')
+      return
+    }
+
     setError(null)
 
     try {
@@ -199,7 +210,13 @@ export function PayPage() {
   }
 
   const handleBridge = async () => {
-    if (!invoice || !walletClient) return
+    if (!invoice) return
+    
+    if (!walletClient) {
+      setError('Wallet not connected or not ready. Please try reconnecting.')
+      return
+    }
+
     setError(null)
     setTxHash(null)
 
