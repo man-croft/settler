@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useAccount, usePublicClient } from 'wagmi'
 import { formatUnits } from 'viem'
-import { DollarSign, TrendingUp, RefreshCw, Sparkles, Lock } from 'lucide-react'
+import { RefreshCw, TrendingUp, Lock, ArrowRight } from 'lucide-react'
 
 import { Layout } from '@/components/layout/Layout'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useWalletStore } from '@/store/wallet'
 import { TESTNET, ERC20_ABI } from '@/lib/constants'
@@ -15,8 +14,6 @@ interface Balance {
   chain: string
   amount: string
   usdValue: string
-  color: string
-  icon: string
 }
 
 interface YieldStrategy {
@@ -27,8 +24,6 @@ interface YieldStrategy {
   tvl: string
   risk: 'Low' | 'Medium' | 'High'
   description: string
-  acceptedTokens: string[]
-  logo: string
 }
 
 const MOCK_YIELD_STRATEGIES: YieldStrategy[] = [
@@ -40,8 +35,6 @@ const MOCK_YIELD_STRATEGIES: YieldStrategy[] = [
     tvl: '$2.4M',
     risk: 'Low',
     description: 'Earn yield by providing liquidity to Bitcoin-backed loans',
-    acceptedTokens: ['USDCx'],
-    logo: '₿',
   },
   {
     id: 'bitflow-liquidity',
@@ -51,8 +44,6 @@ const MOCK_YIELD_STRATEGIES: YieldStrategy[] = [
     tvl: '$850K',
     risk: 'Medium',
     description: 'Provide liquidity and earn trading fees + protocol rewards',
-    acceptedTokens: ['USDCx'],
-    logo: '💧',
   },
   {
     id: 'stackswap-stable',
@@ -62,8 +53,6 @@ const MOCK_YIELD_STRATEGIES: YieldStrategy[] = [
     tvl: '$1.8M',
     risk: 'Low',
     description: 'Conservative strategy optimized for capital preservation',
-    acceptedTokens: ['USDCx'],
-    logo: '🏦',
   },
 ]
 
@@ -82,7 +71,6 @@ export function TreasuryPage() {
     setIsLoading(true)
     const newBalances: Balance[] = []
 
-    // Fetch Ethereum USDC
     if (ethAddress && publicClient) {
       try {
         const balance = await publicClient.readContract({
@@ -94,18 +82,15 @@ export function TreasuryPage() {
         const amount = formatUnits(balance, 6)
         newBalances.push({
           symbol: 'USDC',
-          chain: 'Ethereum Sepolia',
+          chain: 'Ethereum',
           amount,
-          usdValue: amount, // 1:1 for stablecoin
-          color: 'from-white/20 to-white/10',
-          icon: 'ETH',
+          usdValue: amount,
         })
       } catch (e) {
         console.error('Error fetching ETH USDC:', e)
       }
     }
 
-    // Fetch Stacks USDCx
     if (stacksAddress) {
       try {
         const response = await fetch(
@@ -119,11 +104,9 @@ export function TreasuryPage() {
             const amount = (parseInt(bal) / 1_000_000).toFixed(6)
             newBalances.push({
               symbol: 'USDCx',
-              chain: 'Stacks Testnet',
+              chain: 'Stacks',
               amount,
               usdValue: amount,
-              color: 'from-red-600/20 to-red-500/10',
-              icon: 'STX',
             })
           }
         }
@@ -153,14 +136,11 @@ export function TreasuryPage() {
     return usdcxBalance ? parseFloat(usdcxBalance.amount) : 0
   }
 
-  // Regex to validate number input: allows empty, or valid decimal numbers that don't start with 0 (except 0 itself or 0.xxx)
   const handleDepositAmountChange = (value: string) => {
-    // Allow empty string
     if (value === '') {
       setDepositAmount('')
       return
     }
-    // Regex: allow "0", "0.", "0.123", or numbers starting with 1-9 followed by optional digits and decimal
     const regex = /^(0|0\.[0-9]*|[1-9][0-9]*\.?[0-9]*)$/
     if (regex.test(value)) {
       setDepositAmount(value)
@@ -168,148 +148,144 @@ export function TreasuryPage() {
   }
 
   const handleDeposit = (strategyId: string) => {
-    // Mock deposit simulation - in production this would call Stacks smart contracts
-    alert(`🎉 Mock Deposit Simulation\n\nStrategy: ${MOCK_YIELD_STRATEGIES.find(s => s.id === strategyId)?.name}\nAmount: ${depositAmount} USDCx\n\nIn production, this would:\n1. Call SIP-010 transfer to vault contract\n2. Mint yield-bearing tokens\n3. Start earning ${MOCK_YIELD_STRATEGIES.find(s => s.id === strategyId)?.apy}% APY\n\nThis is a demo for the hackathon MVP.`)
+    const strategy = MOCK_YIELD_STRATEGIES.find(s => s.id === strategyId)
+    alert(`Demo Mode\n\nStrategy: ${strategy?.name}\nAmount: ${depositAmount} USDCx\n\nIn production, this would deploy to ${strategy?.protocol}.`)
     setSelectedStrategy(null)
     setDepositAmount('')
   }
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-4xl mx-auto px-8 lg:px-16 py-16">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-16">
           <div>
-            <h1 className="text-3xl font-display font-bold text-white">Treasury</h1>
-            <p className="text-white/60 mt-1">
-              View your cross-chain balances
-            </p>
+            <h1 
+              className="text-white mb-2"
+              style={{ 
+                fontSize: 'clamp(2rem, 6vw, 4rem)',
+                fontFamily: "'Instrument Serif', Georgia, serif",
+                lineHeight: 1,
+                letterSpacing: '-0.02em'
+              }}
+            >
+              <span style={{ fontStyle: 'italic', color: '#FF4D00' }}>Treasury</span>
+            </h1>
+            <p className="text-white/40">Cross-chain balances & yield</p>
           </div>
           <Button 
             variant="outline" 
             onClick={fetchBalances}
             disabled={isLoading}
-            className="border-white/10 hover:bg-white/5"
+            className="btn-outline-minimal rounded-none"
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>
 
-        {/* Total Value Card */}
-        <Card className="glass-card border-t-4 border-t-red-600">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-white/60 mb-2">Total Portfolio Value</p>
-                <p className="text-5xl font-display font-bold text-white">
-                  ${formatAmount(totalValue)}
-                  <span className="text-xl font-normal text-white/60 ml-3">USD</span>
-                </p>
-              </div>
-              <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center shadow-lg shadow-red-900/30">
-                <DollarSign className="h-10 w-10 text-white" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Total Value */}
+        <div className="border-y border-white/5 py-16 mb-16 text-center">
+          <p className="text-xs text-white/30 uppercase tracking-widest mb-4">Total Portfolio Value</p>
+          <p 
+            className="text-white"
+            style={{ 
+              fontSize: 'clamp(3rem, 10vw, 6rem)',
+              fontFamily: "'Instrument Serif', Georgia, serif"
+            }}
+          >
+            ${formatAmount(totalValue)}
+          </p>
+        </div>
 
-        {/* Wallet Connection Status */}
+        {/* Wallet Status */}
         {!isAnyWalletConnected && (
-          <Card className="glass-card border-red-600/30">
-            <CardContent className="pt-6 text-center">
-              <p className="text-red-400 mb-2">No wallets connected</p>
-              <p className="text-sm text-white/60">
-                Connect your Ethereum or Stacks wallet to view balances
-              </p>
-            </CardContent>
-          </Card>
+          <div className="border border-white/5 p-8 text-center mb-16">
+            <p className="text-white/40">Connect a wallet to view balances</p>
+          </div>
         )}
 
-        {/* Balances Grid */}
+        {/* Balances */}
         {balances.length > 0 && (
-          <div className="grid md:grid-cols-2 gap-6">
-            {balances.map((balance) => (
-              <Card key={`${balance.symbol}-${balance.chain}`} className="glass-card hover:bg-white/10 transition-all cursor-pointer">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`h-14 w-14 rounded-xl bg-gradient-to-br ${balance.color} flex items-center justify-center text-white font-bold text-lg shadow-lg border border-white/10`}>
-                        {balance.icon === 'ETH' ? 'Ξ' : '₿'}
+          <div className="mb-16">
+            <h2 className="text-xs text-white/30 uppercase tracking-widest mb-6">Balances</h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              {balances.map((balance) => (
+                <div key={`${balance.symbol}-${balance.chain}`} 
+                  className="border border-white/5 p-8 hover:border-white/10 transition-colors"
+                >
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 border border-white/10 flex items-center justify-center">
+                        <span style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: '1.25rem' }}>
+                          {balance.symbol === 'USDC' ? '$' : 'S'}
+                        </span>
                       </div>
                       <div>
-                        <CardTitle className="text-white text-xl">{balance.symbol}</CardTitle>
-                        <p className="text-xs text-white/40">{balance.chain}</p>
+                        <p style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: '1.125rem', color: '#FAFAFA' }}>{balance.symbol}</p>
+                        <p className="text-xs text-white/30">{balance.chain}</p>
                       </div>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-display font-bold text-white">
+                  <p 
+                    className="text-white mb-1"
+                    style={{ fontSize: '1.875rem', fontFamily: "'Instrument Serif', Georgia, serif" }}
+                  >
                     {formatAmount(balance.amount)}
-                    <span className="text-sm font-normal text-white/40 ml-2">{balance.symbol}</span>
                   </p>
-                  <p className="text-sm text-white/60 mt-1">
+                  <p className="text-sm text-white/40">
                     ≈ ${formatAmount(balance.usdValue)} USD
                   </p>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
         {/* Connected Wallets */}
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2 font-display">
-              Connected Wallets
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/20 to-white/10 flex items-center justify-center border border-white/20">
-                  <span className="text-white text-sm font-bold">Ξ</span>
+        <div className="mb-16">
+          <h2 className="text-xs text-white/30 uppercase tracking-widest mb-6">Connected Wallets</h2>
+          <div className="space-y-4">
+            <div className="border border-white/5 p-6 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 border border-white/10 flex items-center justify-center">
+                  <span style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>$</span>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-white">Ethereum</p>
-                  <p className="text-xs text-white/40">Sepolia Testnet</p>
+                  <p className="text-white">Ethereum</p>
+                  <p className="text-xs text-white/30">Sepolia</p>
                 </div>
               </div>
-              <p className="font-mono text-sm text-white/80">
+              <p className="font-mono text-sm text-white/60">
                 {isEthConnected ? shortenAddress(ethAddress!) : 'Not connected'}
               </p>
             </div>
 
-            <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-600/30 to-red-500/20 flex items-center justify-center border border-red-500/30">
-                  <span className="text-white text-sm font-bold">₿</span>
+            <div className="border border-white/5 p-6 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 border flex items-center justify-center" style={{ borderColor: 'rgba(255, 77, 0, 0.3)' }}>
+                  <span style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontStyle: 'italic', color: '#FF4D00' }}>S</span>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-white">Stacks</p>
-                  <p className="text-xs text-white/40">Testnet</p>
+                  <p className="text-white">Stacks</p>
+                  <p className="text-xs text-white/30">Testnet</p>
                 </div>
               </div>
-              <p className="font-mono text-sm text-white/80">
+              <p className="font-mono text-sm text-white/60">
                 {isStacksConnected ? shortenAddress(stacksAddress!) : 'Not connected'}
               </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Yield Opportunities */}
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2 font-display">
-              <TrendingUp className="h-5 w-5" />
-              Yield Opportunities
-            </CardTitle>
-            <CardDescription className="text-white/60">
-              Deploy your USDCx into Bitcoin-secured DeFi protocols
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div>
+          <div className="flex items-center gap-3 mb-6">
+            <TrendingUp className="w-5 h-5" style={{ color: '#FF4D00' }} />
+            <h2 className="text-xs text-white/30 uppercase tracking-widest">Yield Opportunities</h2>
+          </div>
+          
+          <div className="space-y-6">
             {MOCK_YIELD_STRATEGIES.map((strategy) => {
               const usdcxBalance = getUsdcxBalance()
               const canDeposit = usdcxBalance > 0 && isStacksConnected
@@ -317,74 +293,74 @@ export function TreasuryPage() {
               return (
                 <div 
                   key={strategy.id} 
-                  className="p-5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/[0.07] transition-all"
+                  className="border border-white/5 p-8 hover:border-white/10 transition-colors"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 flex items-center justify-center text-2xl border border-emerald-500/20">
-                        {strategy.logo}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-white text-lg">{strategy.name}</h3>
-                        <p className="text-sm text-white/60">{strategy.protocol}</p>
-                      </div>
+                  <div className="flex items-start justify-between mb-6">
+                    <div>
+                      <h3 
+                        className="text-white mb-1"
+                        style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: '1.25rem' }}
+                      >
+                        {strategy.name}
+                      </h3>
+                      <p className="text-sm text-white/40">{strategy.protocol}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-3xl font-display font-bold text-emerald-400">{strategy.apy}%</p>
-                      <p className="text-xs text-white/40">APY</p>
+                      <p 
+                        style={{ fontSize: '1.875rem', fontFamily: "'Instrument Serif', Georgia, serif", color: '#FF4D00' }}
+                      >
+                        {strategy.apy}%
+                      </p>
+                      <p className="text-xs text-white/30 uppercase tracking-widest">APY</p>
                     </div>
                   </div>
 
-                  <p className="text-sm text-white/80 mb-4">{strategy.description}</p>
+                  <p className="text-white/60 mb-6">{strategy.description}</p>
 
-                  <div className="flex items-center gap-4 text-xs text-white/60 mb-4">
-                    <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-6 text-xs text-white/40 mb-6">
+                    <div className="flex items-center gap-2">
                       <Lock className="w-3 h-3" />
                       <span>TVL: {strategy.tvl}</span>
                     </div>
-                    <div className={`px-2 py-1 rounded-full ${
-                      strategy.risk === 'Low' ? 'bg-emerald-500/20 text-emerald-400' :
-                      strategy.risk === 'Medium' ? 'bg-amber-500/20 text-amber-400' :
-                      'bg-red-500/20 text-red-400'
+                    <div className={`px-2 py-1 border ${
+                      strategy.risk === 'Low' ? 'border-green-500/30 text-green-400' :
+                      strategy.risk === 'Medium' ? 'border-yellow-500/30 text-yellow-400' :
+                      'border-red-500/30 text-red-400'
                     }`}>
                       {strategy.risk} Risk
-                    </div>
-                    <div>
-                      Accepts: {strategy.acceptedTokens.join(', ')}
                     </div>
                   </div>
 
                   {selectedStrategy === strategy.id ? (
-                    <div className="space-y-3">
-                      <div className="flex gap-2">
+                    <div className="space-y-4">
+                      <div className="flex gap-3">
                         <input
                           type="text"
                           inputMode="decimal"
                           placeholder="0.00"
                           value={depositAmount}
                           onChange={(e) => handleDepositAmountChange(e.target.value)}
-                          className="flex-1 px-4 py-3 rounded-xl bg-black/50 border border-white/10 text-white text-sm placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-red-600/50"
+                          className="flex-1 px-4 py-3 bg-transparent border border-white/10 text-white text-lg font-mono placeholder:text-white/20 focus:outline-none focus:border-white/30"
                         />
                         <Button
                           variant="outline"
-                          size="sm"
                           onClick={() => setDepositAmount(usdcxBalance.toFixed(6))}
-                          className="text-xs border-white/10 hover:bg-white/5"
+                          className="btn-outline-minimal rounded-none px-6"
                         >
                           MAX
                         </Button>
                       </div>
-                      <p className="text-xs text-white/40">
+                      <p className="text-xs text-white/30">
                         Available: {usdcxBalance.toFixed(6)} USDCx
                       </p>
-                      <div className="flex gap-2">
+                      <div className="flex gap-3">
                         <Button
-                          className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                          className="flex-1 btn-minimal rounded-none h-12"
                           onClick={() => handleDeposit(strategy.id)}
                           disabled={!depositAmount || parseFloat(depositAmount) <= 0 || parseFloat(depositAmount) > usdcxBalance}
                         >
-                          <Sparkles className="w-4 h-4 mr-2" />
                           Deposit & Earn
+                          <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
                         <Button
                           variant="outline"
@@ -392,7 +368,7 @@ export function TreasuryPage() {
                             setSelectedStrategy(null)
                             setDepositAmount('')
                           }}
-                          className="border-white/10 hover:bg-white/5"
+                          className="btn-outline-minimal rounded-none px-6"
                         >
                           Cancel
                         </Button>
@@ -400,7 +376,7 @@ export function TreasuryPage() {
                     </div>
                   ) : (
                     <Button 
-                      className="w-full bg-white text-black hover:bg-white/90"
+                      className="w-full btn-minimal rounded-none h-12"
                       onClick={() => setSelectedStrategy(strategy.id)}
                       disabled={!canDeposit}
                     >
@@ -413,15 +389,14 @@ export function TreasuryPage() {
               )
             })}
 
-            <div className="p-4 rounded-xl border border-red-600/30 bg-red-600/10 mt-4">
-              <p className="text-sm text-red-400 flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                <strong>Demo Mode:</strong> Yield deposits are simulated for this hackathon MVP. 
-                Production version will integrate real Stacks DeFi protocols with actual yield generation.
+            {/* Demo Notice */}
+            <div className="border p-6" style={{ borderColor: 'rgba(255, 77, 0, 0.2)', backgroundColor: 'rgba(255, 77, 0, 0.05)' }}>
+              <p className="text-sm" style={{ color: '#FF4D00' }}>
+                <strong>Demo Mode:</strong> Yield deposits are simulated. Production will integrate real Stacks DeFi protocols.
               </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </Layout>
   )

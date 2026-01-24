@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settler - Aurora Borealis Style</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+          },
+          colors: {
+            aurora: {
+              purple: '#8B5CF6',
+              blue: '#3B82F6',
+              cyan: '#06B6D4',
+              pink: '#EC4899',
+              dark: '#0A0A0F',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background: #0A0A0F;
+      overflow-x: hidden;
+    }
+    
+    .aurora-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+    
+    .aurora-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.6;
+      animation: float 8s ease-in-out infinite;
+    }
+    
+    .blob-1 {
+      width: 600px;
+      height: 600px;
+      background: linear-gradient(135deg, #8B5CF6, #3B82F6);
+      top: -200px;
+      left: -100px;
+      animation-delay: 0s;
+    }
+    
+    .blob-2 {
+      width: 500px;
+      height: 500px;
+      background: linear-gradient(135deg, #06B6D4, #8B5CF6);
+      top: 20%;
+      right: -150px;
+      animation-delay: -2s;
+    }
+    
+    .blob-3 {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #EC4899, #8B5CF6);
+      bottom: 10%;
+      left: 20%;
+      animation-delay: -4s;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.05); }
+      66% { transform: translate(-20px, 20px) scale(0.95); }
+    }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .glow-text {
+      text-shadow: 0 0 40px rgba(139, 92, 246, 0.5);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #8B5CF6, #3B82F6);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+      transform: translateY(-2px);
+    }
+    
+    .feature-icon {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2));
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+  </style>
+</head>
+<body class="min-h-screen text-white font-sans antialiased">
+  <!-- Aurora Background -->
+  <div class="aurora-bg">
+    <div class="aurora-blob blob-1"></div>
+    <div class="aurora-blob blob-2"></div>
+    <div class="aurora-blob blob-3"></div>
+  </div>
+
+  <!-- Content -->
+  <div class="relative z-10">
+    <!-- Nav -->
+    <nav class="flex items-center justify-between px-6 lg:px-12 py-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center font-bold text-lg">S</div>
+        <span class="font-display font-bold text-xl tracking-tight">SETTLER</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button class="px-4 py-2 text-sm text-white/70 hover:text-white transition-colors">Docs</button>
+        <button class="btn-primary px-5 py-2.5 rounded-xl text-sm font-medium">Launch App</button>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <main class="max-w-6xl mx-auto px-6 pt-20 pb-32">
+      <div class="text-center space-y-8">
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-sm">
+          <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+          <span class="text-white/70">Live on Sepolia & Stacks Testnet</span>
+        </div>
+
+        <!-- Headline -->
+        <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.1] tracking-tight">
+          <span class="text-white">Settle on</span>
+          <br>
+          <span class="bg-gradient-to-r from-aurora-purple via-aurora-cyan to-aurora-pink bg-clip-text text-transparent glow-text">Bitcoin.</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="text-lg md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed">
+          The financial OS for the Bitcoin economy.
+          <br class="hidden md:block">
+          Get paid in <span class="text-white font-medium">USDC</span>. Settle in <span class="text-aurora-purple font-medium">USDCx</span>.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
+          <button class="btn-primary px-8 py-4 rounded-2xl text-base font-semibold flex items-center gap-2">
+            Start Invoicing
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </button>
+          <button class="px-8 py-4 rounded-2xl text-base font-medium glass-card hover:bg-white/10 transition-colors">
+            View Treasury
+          </button>
+        </div>
+      </div>
+
+      <!-- Bridge Visual -->
+      <div class="mt-24 glass-card rounded-3xl p-8 md:p-12">
+        <div class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
+          <!-- ETH Side -->
+          <div class="text-center space-y-4">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-600/20 border border-blue-500/30 flex items-center justify-center mx-auto">
+              <span class="text-3xl font-display font-bold text-blue-400">$</span>
+            </div>
+            <div>
+              <p class="font-display font-bold text-lg">USDC</p>
+              <p class="text-sm text-white/40 font-mono">Ethereum</p>
+            </div>
+          </div>
+
+          <!-- Arrow -->
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-[2px] bg-gradient-to-r from-blue-500/50 to-purple-500/50"></div>
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-aurora-purple/20 to-aurora-cyan/20 border border-aurora-purple/30 flex items-center justify-center">
+              <svg class="w-6 h-6 text-aurora-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            </div>
+            <div class="w-16 h-[2px] bg-gradient-to-r from-purple-500/50 to-orange-500/50"></div>
+          </div>
+
+          <!-- STX Side -->
+          <div class="text-center space-y-4">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500/20 to-orange-600/20 border border-orange-500/30 flex items-center justify-center mx-auto">
+              <span class="text-3xl font-display font-bold text-orange-400">S</span>
+            </div>
+            <div>
+              <p class="font-display font-bold text-lg">USDCx</p>
+              <p class="text-sm text-white/40 font-mono">Stacks</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="mt-24 grid md:grid-cols-3 gap-6">
+        <div class="glass-card rounded-2xl p-8 hover:border-aurora-purple/30 transition-all cursor-default group">
+          <div class="feature-icon w-14 h-14 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-aurora-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          </div>
+          <h3 class="font-display font-bold text-xl mb-3">Smart Invoices</h3>
+          <p class="text-white/50 leading-relaxed">Create payment links that work cross-chain. No databases, no friction.</p>
+        </div>
+
+        <div class="glass-card rounded-2xl p-8 hover:border-aurora-cyan/30 transition-all cursor-default group">
+          <div class="feature-icon w-14 h-14 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-aurora-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+          </div>
+          <h3 class="font-display font-bold text-xl mb-3">Seamless Bridge</h3>
+          <p class="text-white/50 leading-relaxed">Auto-convert Ethereum USDC to Stacks USDCx via Circle xReserve.</p>
+        </div>
+
+        <div class="glass-card rounded-2xl p-8 hover:border-aurora-pink/30 transition-all cursor-default group">
+          <div class="feature-icon w-14 h-14 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-aurora-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <h3 class="font-display font-bold text-xl mb-3">Bitcoin Security</h3>
+          <p class="text-white/50 leading-relaxed">Settlement protected by Stacks Bitcoin finality.</p>
+        </div>
+      </div>
+
+      <!-- Trust -->
+      <div class="mt-24 text-center">
+        <p class="text-xs text-white/30 uppercase tracking-widest mb-8">Powered By</p>
+        <div class="flex items-center justify-center gap-12">
+          <div class="flex items-center gap-3 text-white/40 hover:text-white/70 transition-colors">
+            <div class="w-8 h-8 rounded-full bg-white/20"></div>
+            <span class="font-display font-bold text-xl">Circle</span>
+          </div>
+          <div class="flex items-center gap-3 text-white/40 hover:text-white/70 transition-colors">
+            <div class="w-8 h-8 rounded bg-purple-500/30"></div>
+            <span class="font-display font-bold text-xl">Stacks</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

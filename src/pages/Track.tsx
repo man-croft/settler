@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { usePublicClient } from 'wagmi'
-import { CheckCircle, Clock, Loader2, XCircle, ExternalLink, RefreshCw, ArrowLeft, ArrowRight, AlertCircle } from 'lucide-react'
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
+import { CheckCircle, Clock, Loader2, XCircle, ExternalLink, RefreshCw, ArrowLeft, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn, shortenAddress } from '@/lib/utils'
 import { TESTNET } from '@/lib/constants'
@@ -28,25 +27,27 @@ interface Step {
 }
 
 const ethToStxSteps: Step[] = [
-  { id: 'confirming', label: 'Transaction Confirmed', description: 'Deposit transaction confirmed on Ethereum' },
-  { id: 'bridging', label: 'Bridging via Circle', description: 'Attestation service processing transfer (~15 min)' },
+  { id: 'confirming', label: 'Transaction Confirmed', description: 'Deposit confirmed on Ethereum' },
+  { id: 'bridging', label: 'Bridging via Circle', description: 'Attestation processing (~15 min)' },
   { id: 'complete', label: 'USDCx Minted', description: 'Tokens minted on Stacks' },
 ]
 
 const stxToEthSteps: Step[] = [
-  { id: 'confirming', label: 'Burn Confirmed', description: 'USDCx burn transaction confirmed on Stacks' },
-  { id: 'bridging', label: 'Attesting', description: 'Circle attestation service processing (~25 min)' },
+  { id: 'confirming', label: 'Burn Confirmed', description: 'USDCx burn confirmed on Stacks' },
+  { id: 'bridging', label: 'Attesting', description: 'Circle attestation (~25 min)' },
   { id: 'complete', label: 'USDC Released', description: 'USDC released on Ethereum' },
 ]
 
 function StepIndicator({ 
   step, 
   currentStatus, 
-  isLast 
+  isLast,
+  index
 }: { 
   step: Step
   currentStatus: BridgeStatus
-  isLast: boolean 
+  isLast: boolean
+  index: number
 }) {
   const statusOrder = ['pending', 'confirming', 'bridging', 'complete']
   const stepIndex = statusOrder.indexOf(step.id)
@@ -57,47 +58,53 @@ function StepIndicator({
   const isFailed = currentStatus === 'failed' && step.id === currentStatus
 
   return (
-    <div className="flex gap-4 group">
+    <div className="flex gap-6 group">
       <div className="flex flex-col items-center">
         <div
           className={cn(
-            'h-8 w-8 rounded-full flex items-center justify-center border-2 transition-all duration-500 relative z-10',
-            isComplete && 'bg-electric-lime border-electric-lime shadow-[0_0_15px_rgba(217,255,0,0.3)] scale-110',
-            isCurrent && !isFailed && 'border-electric-lime bg-electric-lime/10 shadow-[0_0_10px_rgba(217,255,0,0.2)] animate-pulse',
-            isFailed && 'bg-red-500 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]',
-            !isComplete && !isCurrent && 'border-white/10 bg-[#0f081e] shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)]'
+            'w-10 h-10 flex items-center justify-center border-2 transition-all duration-500',
+            isComplete && 'border-[#FF4D00]',
+            isCurrent && !isFailed && 'border-[#FF4D00]',
+            isFailed && 'bg-red-500 border-red-500',
+            !isComplete && !isCurrent && 'border-white/10'
           )}
+          style={isComplete ? { backgroundColor: '#FF4D00' } : undefined}
         >
-          {isComplete && <CheckCircle className="h-4 w-4 text-black" />}
-          {isCurrent && !isFailed && <Loader2 className="h-4 w-4 text-electric-lime animate-spin" />}
-          {isFailed && <XCircle className="h-4 w-4 text-white" />}
-          {!isComplete && !isCurrent && <Clock className="h-3 w-3 text-white/10" />}
+          {isComplete && <CheckCircle className="h-5 w-5 text-white" />}
+          {isCurrent && !isFailed && <Loader2 className="h-5 w-5 animate-spin" style={{ color: '#FF4D00' }} />}
+          {isFailed && <XCircle className="h-5 w-5 text-white" />}
+          {!isComplete && !isCurrent && !isFailed && (
+            <span className="text-xs font-mono text-white/20">{String(index + 1).padStart(2, '0')}</span>
+          )}
         </div>
         {!isLast && (
           <div
             className={cn(
-              'w-[2px] flex-1 min-h-[30px] transition-colors duration-700',
-              isComplete ? 'bg-electric-lime shadow-[0_0_8px_rgba(217,255,0,0.2)]' : 'bg-white/5'
+              'w-px flex-1 min-h-[40px] transition-colors duration-700',
+              isComplete ? 'bg-[#FF4D00]' : 'bg-white/10'
             )}
           />
         )}
       </div>
 
-      <div className="pb-6 pt-1 flex-1">
+      <div className="pb-8 pt-2 flex-1">
         <h3
           className={cn(
-            'font-bold text-sm font-display mb-0.5 transition-colors duration-300',
-            isComplete && 'text-electric-lime drop-shadow-[0_0_8px_rgba(217,255,0,0.5)]',
-            isCurrent && !isFailed && 'text-white drop-shadow-md',
+            'mb-1 transition-colors duration-300',
             isFailed && 'text-red-400',
-            !isComplete && !isCurrent && 'text-white/40'
+            !isComplete && !isCurrent && 'text-white/30'
           )}
+          style={{ 
+            fontFamily: "'Instrument Serif', Georgia, serif",
+            fontSize: '1.125rem',
+            color: isComplete ? '#FF4D00' : isCurrent && !isFailed ? '#FAFAFA' : undefined
+          }}
         >
           {step.label}
         </h3>
         <p className={cn(
-          "text-[11px] leading-relaxed transition-colors duration-300 font-medium",
-          isCurrent ? "text-white/90" : "text-white/50"
+          "text-sm transition-colors duration-300",
+          isCurrent ? "text-white/60" : "text-white/30"
         )}>{step.description}</p>
       </div>
     </div>
@@ -353,14 +360,19 @@ export function TrackPage() {
   if (!txHash) {
     return (
       <Layout>
-        <div className="max-w-md mx-auto text-center py-20">
-          <AlertCircle className="w-16 h-16 text-white/20 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2 font-display">No Transaction</h1>
-          <p className="text-white/40 mb-8 font-light">
-            Please provide a transaction hash to track.
-          </p>
+        <div className="max-w-xl mx-auto text-center py-32 px-8">
+          <div className="w-16 h-16 border border-white/10 flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="w-8 h-8 text-white/20" />
+          </div>
+          <h1 
+            className="text-white mb-2"
+            style={{ fontSize: '1.5rem', fontFamily: "'Instrument Serif', Georgia, serif" }}
+          >
+            No Transaction
+          </h1>
+          <p className="text-white/40 mb-8">Please provide a transaction hash to track.</p>
           <Link to="/">
-            <Button variant="outline" className="border-white/10 hover:bg-white/5 text-white">
+            <Button variant="outline" className="btn-outline-minimal rounded-none">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Home
             </Button>
@@ -372,192 +384,172 @@ export function TrackPage() {
 
   return (
     <Layout>
-      <div className="max-w-lg mx-auto space-y-4 pt-2">
-        <div className="text-center relative">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-electric-purple/20 blur-[60px] rounded-full pointer-events-none" />
-          <h1 className="text-3xl font-display font-black text-white mb-1 tracking-wide drop-shadow-sm relative z-10">Bridge Status</h1>
-          <p className="text-white/60 font-light text-sm relative z-10">
-            Tracking your cross-chain transfer
+      <div className="max-w-2xl mx-auto px-8 lg:px-16 py-16">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <p className="text-xs text-white/30 uppercase tracking-widest mb-4">
+            {direction === 'STX_TO_ETH' ? 'Stacks → Ethereum' : 'Ethereum → Stacks'}
           </p>
+          <h1 
+            className="text-white"
+            style={{ 
+              fontSize: 'clamp(2rem, 6vw, 4rem)',
+              fontFamily: "'Instrument Serif', Georgia, serif",
+              lineHeight: 1,
+              letterSpacing: '-0.02em'
+            }}
+          >
+            Bridge <span style={{ fontStyle: 'italic', color: '#FF4D00' }}>Status</span>
+          </h1>
         </div>
 
-        <Card className="clay-card overflow-visible">
-          <CardHeader className="pb-4 pt-5 border-b border-white/5">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg text-white font-display flex items-center gap-3">
-                <span className={direction === 'STX_TO_ETH' ? 'text-electric-lime' : 'text-white'}>
-                  {direction === 'STX_TO_ETH' ? 'USDCx' : 'USDC'}
-                </span>
-                <div className="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center">
-                  <ArrowRight className="w-3 h-3 text-white/40" />
-                </div>
-                <span className={direction === 'STX_TO_ETH' ? 'text-white' : 'text-electric-lime'}>
-                  {direction === 'STX_TO_ETH' ? 'USDC' : 'USDCx'}
-                </span>
-              </CardTitle>
-              <div className="flex items-center gap-2 text-[10px] font-mono text-electric-lime bg-electric-lime/10 px-2 py-1 rounded-lg border border-electric-lime/20 shadow-[0_0_10px_-2px_rgba(217,255,0,0.3)]">
-                <Clock className="h-3 w-3 animate-pulse" />
-                {formatElapsedTime(elapsedTime)}
-              </div>
+        {/* Timer */}
+        <div className="flex items-center justify-center gap-3 mb-12">
+          <Clock className="w-5 h-5 text-white/30" />
+          <span className="font-mono text-2xl text-white">{formatElapsedTime(elapsedTime)}</span>
+        </div>
+
+        {/* Steps */}
+        <div className="mb-12">
+          {steps.map((step, index) => (
+            <StepIndicator
+              key={step.id}
+              step={step}
+              currentStatus={tracking.status}
+              isLast={index === steps.length - 1}
+              index={index}
+            />
+          ))}
+        </div>
+
+        {/* Transaction Details */}
+        <div className="space-y-4 mb-12">
+          {/* Source TX */}
+          <div className="p-6 border border-white/5 bg-white/[0.01] flex items-center justify-between">
+            <div>
+              <p className="text-xs text-white/30 uppercase tracking-widest mb-2">
+                {direction === 'STX_TO_ETH' ? 'Burn Transaction' : 'Deposit Transaction'}
+              </p>
+              <p className="font-mono text-sm text-white">{shortenAddress(txHash, 8)}</p>
             </div>
-          </CardHeader>
-
-          <CardContent className="pt-6 pb-6 px-6">
-            {/* Steps Visualizer */}
-            <div className="relative">
-              {/* Vertical line background for steps */}
-              <div className="absolute left-[15px] top-3 bottom-8 w-[2px] bg-white/5 -z-10" />
-              
-              <div className="space-y-0">
-                {steps.map((step, index) => (
-                  <StepIndicator
-                    key={step.id}
-                    step={step}
-                    currentStatus={tracking.status}
-                    isLast={index === steps.length - 1}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Transaction Details - Inset Panel */}
-            <div className="mt-4 space-y-2 bg-[#0a0512] p-4 rounded-2xl shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] border border-white/10">
-              
-              {/* Deposit/Burn TX */}
-              <div className="flex items-center justify-between group">
-                <div>
-                  <p className="text-[10px] uppercase tracking-widest text-white/50 font-bold mb-0.5">
-                    {direction === 'STX_TO_ETH' ? 'Burn Transaction' : 'Deposit Transaction'}
-                  </p>
-                  <p className="text-sm font-mono text-white group-hover:text-electric-lime transition-colors">
-                    {shortenAddress(txHash, 8)}
-                  </p>
-                </div>
-                <a 
-                  href={direction === 'STX_TO_ETH' 
-                    ? `${TESTNET.stacks.blockExplorer}/txid/${txHash}?chain=testnet`
-                    : `${TESTNET.ethereum.blockExplorer}/tx/${txHash}`
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all hover:scale-110"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              </div>
-
-              {/* Status Badges */}
-              {(tracking.ethTxConfirmed || tracking.stacksBurnConfirmed) && (
-                <div className="pt-1">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-semibold">
-                    <CheckCircle className="w-3 h-3" />
-                    {tracking.ethTxConfirmed ? `Confirmed in block #${tracking.ethTxBlockNumber}` : 'Burn confirmed on Stacks'}
-                  </div>
-                </div>
-              )}
-
-              {/* Mint TX (if available) */}
-              {tracking.stacksMintTxId && (
-                <div className="pt-3 border-t border-white/5 mt-2 animate-in fade-in slide-in-from-left-2">
-                  <div className="flex items-center justify-between group">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-widest text-electric-lime/80 font-bold mb-0.5">Stacks Mint Transaction</p>
-                      <p className="text-sm font-mono text-white group-hover:text-electric-lime transition-colors">
-                        {shortenAddress(tracking.stacksMintTxId, 8)}
-                      </p>
-                    </div>
-                    <a 
-                      href={`${TESTNET.stacks.blockExplorer}/txid/${tracking.stacksMintTxId}?chain=testnet`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-8 h-8 rounded-full bg-electric-lime/10 flex items-center justify-center text-electric-lime hover:bg-electric-lime/20 transition-all hover:scale-110"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </div>
-                </div>
-              )}
-
-              {/* Release TX (if available) */}
-              {tracking.ethReleaseTxHash && (
-                <div className="pt-3 border-t border-white/5 mt-2 animate-in fade-in slide-in-from-left-2">
-                  <div className="flex items-center justify-between group">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-widest text-electric-lime/80 font-bold mb-0.5">Ethereum Release Transaction</p>
-                      <p className="text-sm font-mono text-white group-hover:text-electric-lime transition-colors">
-                        {shortenAddress(tracking.ethReleaseTxHash, 8)}
-                      </p>
-                    </div>
-                    <a 
-                      href={`${TESTNET.ethereum.blockExplorer}/tx/${tracking.ethReleaseTxHash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-8 h-8 rounded-full bg-electric-lime/10 flex items-center justify-center text-electric-lime hover:bg-electric-lime/20 transition-all hover:scale-110"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </div>
-                </div>
-              )}
-
-              {/* Error State */}
-              {tracking.error && (
-                <div className="pt-3 border-t border-white/5 mt-2">
-                  <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-2">
-                    <AlertCircle className="w-4 h-4 text-red-400 mt-0.5" />
-                    <div>
-                      <p className="text-xs font-bold text-red-400">Error</p>
-                      <p className="text-[10px] text-red-400/80">{tracking.error}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Waiting Message */}
-            {tracking.status === 'bridging' && (
-              <div className="mt-3 p-3 rounded-xl bg-white/5 border border-white/5 flex items-start gap-2 animate-pulse">
-                <Loader2 className="w-4 h-4 text-white/40 animate-spin mt-0.5" />
-                <p className="text-[10px] text-white/40 leading-relaxed font-light">
-                  Circle's attestation service is verifying. <br/>
-                  Est. time: <span className="text-white/60 font-medium">{direction === 'ETH_TO_STX' ? '~15' : '~25'} minutes</span>
-                </p>
-              </div>
-            )}
-
-            {/* Success Message */}
-            {tracking.status === 'complete' && (
-              <div className="mt-4 p-4 rounded-2xl bg-electric-lime text-black shadow-[0_0_20px_-5px_rgba(217,255,0,0.5)] flex flex-col items-center text-center gap-2 animate-in zoom-in-95 duration-300">
-                <div className="w-8 h-8 rounded-full bg-black/10 flex items-center justify-center mb-0.5">
-                  <CheckCircle className="w-5 h-5 text-black" />
-                </div>
-                <h3 className="font-display font-bold text-xl">Bridge Complete!</h3>
-                <p className="text-xs opacity-60 max-w-[200px] leading-snug">
-                  Your funds have been delivered.
-                </p>
-              </div>
-            )}
-          </CardContent>
-
-          <CardFooter className="flex gap-3 pt-2 pb-6 px-6">
-            <Button 
-              variant="outline" 
-              className="flex-1 border-white/10 hover:bg-white/5 hover:text-white text-white/60 h-12 rounded-xl text-sm"
-              onClick={handleRefresh}
-              disabled={tracking.status === 'complete'}
+            <a 
+              href={direction === 'STX_TO_ETH' 
+                ? `${TESTNET.stacks.blockExplorer}/txid/${txHash}?chain=testnet`
+                : `${TESTNET.ethereum.blockExplorer}/tx/${txHash}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/30 transition-all"
             >
-              <RefreshCw className="h-3.5 w-3.5 mr-2" />
-              Refresh
-            </Button>
-            <Link to="/treasury" className="flex-1">
-              <Button className="w-full bg-white text-black hover:bg-white/90 h-12 rounded-xl font-bold shadow-lg text-sm">
-                View Treasury
-              </Button>
-            </Link>
-          </CardFooter>
-        </Card>
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
 
-        <p className="text-center text-[10px] text-white/20 mt-4 font-mono uppercase tracking-widest">
+          {/* Confirmation Badge */}
+          {(tracking.ethTxConfirmed || tracking.stacksBurnConfirmed) && (
+            <div className="p-4 border border-green-500/20 bg-green-500/5 flex items-center gap-3">
+              <CheckCircle className="w-4 h-4 text-green-500" />
+              <span className="text-sm text-green-400">
+                {tracking.ethTxConfirmed ? `Confirmed in block #${tracking.ethTxBlockNumber}` : 'Burn confirmed on Stacks'}
+              </span>
+            </div>
+          )}
+
+          {/* Mint TX */}
+          {tracking.stacksMintTxId && (
+            <div className="p-6 border bg-[#FF4D00]/5 flex items-center justify-between animate-fade-in" style={{ borderColor: 'rgba(255, 77, 0, 0.2)' }}>
+              <div>
+                <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#FF4D00' }}>Stacks Mint Transaction</p>
+                <p className="font-mono text-sm text-white">{shortenAddress(tracking.stacksMintTxId, 8)}</p>
+              </div>
+              <a 
+                href={`${TESTNET.stacks.blockExplorer}/txid/${tracking.stacksMintTxId}?chain=testnet`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 border flex items-center justify-center transition-all"
+                style={{ borderColor: 'rgba(255, 77, 0, 0.3)', color: '#FF4D00' }}
+              >
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </div>
+          )}
+
+          {/* Release TX */}
+          {tracking.ethReleaseTxHash && (
+            <div className="p-6 border bg-[#FF4D00]/5 flex items-center justify-between animate-fade-in" style={{ borderColor: 'rgba(255, 77, 0, 0.2)' }}>
+              <div>
+                <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#FF4D00' }}>Ethereum Release Transaction</p>
+                <p className="font-mono text-sm text-white">{shortenAddress(tracking.ethReleaseTxHash, 8)}</p>
+              </div>
+              <a 
+                href={`${TESTNET.ethereum.blockExplorer}/tx/${tracking.ethReleaseTxHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 border flex items-center justify-center transition-all"
+                style={{ borderColor: 'rgba(255, 77, 0, 0.3)', color: '#FF4D00' }}
+              >
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </div>
+          )}
+
+          {/* Error */}
+          {tracking.error && (
+            <div className="p-6 border border-red-500/20 bg-red-500/5 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-red-400">Error</p>
+                <p className="text-xs text-red-400/70">{tracking.error}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Waiting Message */}
+          {tracking.status === 'bridging' && (
+            <div className="p-6 border border-white/5 bg-white/[0.01] flex items-start gap-3">
+              <Loader2 className="w-5 h-5 text-white/30 animate-spin shrink-0 mt-0.5" />
+              <p className="text-sm text-white/40">
+                Circle's attestation service is verifying your transfer. 
+                Est. time: ~{direction === 'ETH_TO_STX' ? '15' : '25'} minutes
+              </p>
+            </div>
+          )}
+
+          {/* Success */}
+          {tracking.status === 'complete' && (
+            <div className="p-8 border text-white text-center animate-fade-in" style={{ borderColor: '#FF4D00', backgroundColor: '#FF4D00' }}>
+              <CheckCircle className="w-12 h-12 mx-auto mb-4" />
+              <h3 
+                className="mb-2"
+                style={{ fontSize: '1.25rem', fontFamily: "'Instrument Serif', Georgia, serif" }}
+              >
+                Bridge Complete!
+              </h3>
+              <p className="text-sm opacity-70">Your funds have been delivered.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-4">
+          <Button 
+            variant="outline" 
+            className="flex-1 btn-outline-minimal h-14 rounded-none"
+            onClick={handleRefresh}
+            disabled={tracking.status === 'complete'}
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <Link to="/treasury" className="flex-1">
+            <Button className="w-full btn-minimal h-14 rounded-none">
+              View Treasury
+            </Button>
+          </Link>
+        </div>
+
+        {/* Last Checked */}
+        <p className="text-center text-xs text-white/20 mt-8">
           Last checked: {tracking.lastChecked.toLocaleTimeString()}
         </p>
       </div>

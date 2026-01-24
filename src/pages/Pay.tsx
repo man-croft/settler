@@ -6,7 +6,6 @@ import { AlertCircle, Loader2, CheckCircle, ArrowRight, Wallet, RefreshCw } from
 
 import { Layout } from '@/components/layout/Layout'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { useWalletStore } from '@/store/wallet'
 import { TESTNET, ERC20_ABI } from '@/lib/constants'
 import { formatAmount } from '@/lib/utils'
@@ -32,28 +31,23 @@ function decodeInvoice(encoded: string): { data: Invoice | null; error: string |
     const data = atob(encoded)
     const parsed = JSON.parse(data)
     
-    // Validate invoice structure
     if (!parsed || typeof parsed !== 'object') {
       return { data: null, error: 'Invalid invoice format' }
     }
     
-    // Validate required fields
     if (!parsed.direction || !parsed.amount || !parsed.recipient) {
       return { data: null, error: 'Missing required invoice fields' }
     }
     
-    // Validate direction
     if (parsed.direction !== 'ETH_TO_STX' && parsed.direction !== 'STX_TO_ETH') {
       return { data: null, error: 'Invalid bridge direction' }
     }
     
-    // Validate amount
     const amount = parseFloat(parsed.amount)
     if (isNaN(amount) || amount <= 0) {
       return { data: null, error: 'Invalid amount (must be greater than 0)' }
     }
     
-    // Validate recipient
     if (typeof parsed.recipient !== 'string' || parsed.recipient.length < 1) {
       return { data: null, error: 'Invalid recipient address' }
     }
@@ -78,17 +72,14 @@ export function PayPage() {
   const [needsApproval, setNeedsApproval] = useState(true)
   const [isRefreshingAllowance, setIsRefreshingAllowance] = useState(false)
   
-  // Ethereum wallet
   const { address: ethAddress, isConnected: isEthConnected } = useAccount()
   const publicClient = usePublicClient()
   const { data: walletClient } = useWalletClient()
   const [ethUsdcBalance, setEthUsdcBalance] = useState<string>('0')
   
-  // Stacks wallet
   const { stacksAddress, isStacksConnected } = useWalletStore()
   const [stxUsdcxBalance, setStxUsdcxBalance] = useState<string>('0')
   
-  // Decode invoice on mount
   useEffect(() => {
     if (invoiceParam) {
       const result = decodeInvoice(invoiceParam)
@@ -102,7 +93,6 @@ export function PayPage() {
     setIsLoading(false)
   }, [invoiceParam])
 
-  // Fetch balances
   useEffect(() => {
     async function fetchBalances() {
       if (ethAddress && publicClient) {
@@ -138,7 +128,6 @@ export function PayPage() {
     return () => clearInterval(interval)
   }, [ethAddress, stacksAddress, publicClient])
 
-  // Function to check allowance (reusable)
   const checkAllowance = async () => {
     if (!publicClient || !ethAddress || !invoice || invoice.direction !== 'ETH_TO_STX') {
       return
@@ -155,12 +144,10 @@ export function PayPage() {
     }
   }
 
-  // Check USDC allowance for ETH_TO_STX direction
   useEffect(() => {
     checkAllowance()
   }, [publicClient, ethAddress, invoice])
 
-  // Manual refresh allowance
   const handleRefreshAllowance = async () => {
     setIsRefreshingAllowance(true)
     await checkAllowance()
@@ -186,10 +173,8 @@ export function PayPage() {
       setStatus('approving')
       const approveTxHash = await approveUsdc(walletClient, invoice.amount)
       
-      // Wait for approval to be confirmed
       await publicClient.waitForTransactionReceipt({ hash: approveTxHash })
       
-      // Refresh allowance using the shared function
       await checkAllowance()
       
       setStatus('idle')
@@ -308,17 +293,19 @@ export function PayPage() {
       handleWithdraw()
     }
   }
-   
-   // Show loading state while decoding invoice
-   if (isLoading) {
+
+  if (isLoading) {
     return (
       <Layout>
-        <div className="max-w-md mx-auto text-center py-20">
-          <Loader2 className="w-16 h-16 text-red-500 mx-auto mb-4 animate-spin" />
-          <h1 className="text-2xl font-bold text-white mb-2 font-display">Loading Invoice</h1>
-          <p className="text-white/60 mb-8">
-            Please wait while we decode your invoice...
-          </p>
+        <div className="max-w-xl mx-auto text-center py-32 px-8">
+          <Loader2 className="w-12 h-12 text-white/20 mx-auto mb-6 animate-spin" />
+          <h1 
+            className="text-white mb-2"
+            style={{ fontSize: '1.5rem', fontFamily: "'Instrument Serif', Georgia, serif" }}
+          >
+            Loading Invoice
+          </h1>
+          <p className="text-white/40">Please wait...</p>
         </div>
       </Layout>
     )
@@ -327,13 +314,18 @@ export function PayPage() {
   if (!invoiceParam) {
     return (
       <Layout>
-        <div className="max-w-md mx-auto text-center py-20">
-          <AlertCircle className="w-16 h-16 text-white/20 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2 font-display">No Invoice Found</h1>
-          <p className="text-white/40 mb-8">
-            This page requires a valid invoice link.
-          </p>
-          <Button onClick={() => navigate('/create')} variant="outline" className="border-white/10 hover:bg-white/5 text-white">
+        <div className="max-w-xl mx-auto text-center py-32 px-8">
+          <div className="w-16 h-16 border border-white/10 flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="w-8 h-8 text-white/20" />
+          </div>
+          <h1 
+            className="text-white mb-2"
+            style={{ fontSize: '1.5rem', fontFamily: "'Instrument Serif', Georgia, serif" }}
+          >
+            No Invoice Found
+          </h1>
+          <p className="text-white/40 mb-8">This page requires a valid invoice link.</p>
+          <Button onClick={() => navigate('/create')} className="btn-minimal rounded-none">
             Create an Invoice
           </Button>
         </div>
@@ -344,20 +336,23 @@ export function PayPage() {
   if (!invoice) {
     return (
       <Layout>
-        <div className="max-w-md mx-auto text-center py-20">
-          <AlertCircle className="w-16 h-16 text-red-500/50 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2 font-display">Invalid Invoice</h1>
-          <p className="text-white/60 mb-2">
-            {error || 'The invoice data could not be decoded.'}
-          </p>
-          <p className="text-xs text-white/40 mb-8">
-            Please check the invoice link and try again.
-          </p>
-          <div className="flex gap-3 justify-center">
-            <Button onClick={() => navigate('/create')} className="bg-red-600 hover:bg-red-700 text-white">
+        <div className="max-w-xl mx-auto text-center py-32 px-8">
+          <div className="w-16 h-16 border border-red-500/20 flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="w-8 h-8 text-red-500/50" />
+          </div>
+          <h1 
+            className="text-white mb-2"
+            style={{ fontSize: '1.5rem', fontFamily: "'Instrument Serif', Georgia, serif" }}
+          >
+            Invalid Invoice
+          </h1>
+          <p className="text-white/60 mb-2">{error || 'The invoice data could not be decoded.'}</p>
+          <p className="text-xs text-white/30 mb-8">Please check the invoice link and try again.</p>
+          <div className="flex gap-4 justify-center">
+            <Button onClick={() => navigate('/create')} className="btn-minimal rounded-none">
               Create New Invoice
             </Button>
-            <Button onClick={() => navigate('/')} variant="outline" className="border-white/10 hover:bg-white/5 text-white">
+            <Button onClick={() => navigate('/')} variant="outline" className="btn-outline-minimal rounded-none">
               Go Home
             </Button>
           </div>
@@ -371,198 +366,178 @@ export function PayPage() {
   const balance = isEthToStx ? ethUsdcBalance : stxUsdcxBalance
   const hasEnoughBalance = parseFloat(balance) >= parseFloat(invoice.amount)
   
-  // Validate minimum amount
   const minAmount = isEthToStx ? TESTNET.limits.minDeposit : TESTNET.limits.minWithdraw
   const meetsMinimum = parseFloat(invoice.amount) >= minAmount
   const amountError = !meetsMinimum ? `Amount must be at least ${minAmount} ${isEthToStx ? 'USDC' : 'USDCx'}` : null
 
   return (
     <Layout>
-      <div className="max-w-lg mx-auto space-y-4 pt-2">
+      <div className="max-w-2xl mx-auto px-8 lg:px-16 py-16">
         {/* Header */}
-        <div className="text-center relative">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-electric-lime/20 blur-[50px] rounded-full pointer-events-none" />
-          <h1 className="text-3xl font-display font-black text-white mb-1 tracking-tight drop-shadow-sm relative z-10">
-            Pay Invoice
+        <div className="text-center mb-16">
+          <p className="text-xs text-white/30 uppercase tracking-widest mb-4">
+            {isEthToStx ? 'Ethereum → Stacks' : 'Stacks → Ethereum'}
+          </p>
+          <h1 
+            className="text-white"
+            style={{ 
+              fontSize: 'clamp(2rem, 6vw, 4rem)',
+              fontFamily: "'Instrument Serif', Georgia, serif",
+              lineHeight: 1,
+              letterSpacing: '-0.02em'
+            }}
+          >
+            Pay <span style={{ fontStyle: 'italic', color: '#FF4D00' }}>Invoice</span>
           </h1>
-          <p className="text-white/60 font-light text-sm relative z-10">
-            Review and complete payment
+        </div>
+
+        {/* Amount Display */}
+        <div className="text-center mb-16 py-12 border-y border-white/5">
+          <p 
+            className="text-white mb-2"
+            style={{ 
+              fontSize: 'clamp(3rem, 10vw, 6rem)',
+              fontFamily: "'Instrument Serif', Georgia, serif"
+            }}
+          >
+            {formatAmount(invoice.amount)}
+          </p>
+          <p className="text-xl text-white/40">
+            {isEthToStx ? 'USDC' : 'USDCx'}
           </p>
         </div>
 
-        {/* Invoice Card */}
-        <Card className="clay-card overflow-visible relative">
-          <CardHeader className="pb-0 pt-5 px-6 text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/5 mx-auto mb-2">
-              <span className={`w-1.5 h-1.5 rounded-full ${isEthToStx ? 'bg-electric-lime shadow-[0_0_8px_#D9FF00]' : 'bg-electric-purple shadow-[0_0_8px_#BD00FF]'}`} />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">
-                {isEthToStx ? 'ETH → STX Bridge' : 'STX → ETH Bridge'}
+        {/* Bridge Visual */}
+        <div className="flex items-center justify-center gap-8 mb-16">
+          <div className="text-center">
+            <p 
+              className="mb-2"
+              style={{ 
+                fontSize: '2.5rem',
+                fontFamily: "'Instrument Serif', Georgia, serif",
+                color: '#FAFAFA'
+              }}
+            >
+              {isEthToStx ? '$' : 'S'}
+            </p>
+            <p className="text-xs text-white/30 uppercase tracking-widest">{isEthToStx ? 'Ethereum' : 'Stacks'}</p>
+          </div>
+          <ArrowRight className="w-6 h-6 text-white/20" />
+          <div className="text-center">
+            <p 
+              className="mb-2"
+              style={{ 
+                fontSize: '2.5rem',
+                fontFamily: "'Instrument Serif', Georgia, serif",
+                fontStyle: 'italic',
+                color: '#FF4D00'
+              }}
+            >
+              {isEthToStx ? 'S' : '$'}
+            </p>
+            <p className="text-xs text-white/30 uppercase tracking-widest">{isEthToStx ? 'Stacks' : 'Ethereum'}</p>
+          </div>
+        </div>
+
+        {/* Details */}
+        <div className="space-y-6 mb-12">
+          {/* Recipient */}
+          <div className="p-6 border border-white/5 bg-white/[0.01]">
+            <p className="text-xs text-white/30 uppercase tracking-widest mb-3">Recipient</p>
+            <div className="flex items-center gap-3">
+              <Wallet className="w-5 h-5 text-white/30" />
+              <p className="font-mono text-sm text-white break-all">{invoice.recipient}</p>
+            </div>
+          </div>
+
+          {/* Memo */}
+          {invoice.memo && (
+            <div className="p-6 border border-white/5 bg-white/[0.01]">
+              <p className="text-xs text-white/30 uppercase tracking-widest mb-3">Memo</p>
+              <p className="text-white/80 italic">"{invoice.memo}"</p>
+            </div>
+          )}
+
+          {/* Balance */}
+          {requiredWalletConnected && (
+            <div className="flex items-center justify-between p-6 border border-white/5 bg-white/[0.01]">
+              <div className="flex items-center gap-3">
+                <div className={`w-2 h-2 rounded-full ${hasEnoughBalance ? 'bg-green-500' : 'bg-red-500'}`} />
+                <span className="text-xs text-white/30 uppercase tracking-widest">Your Balance</span>
+              </div>
+              <span className={`font-mono ${hasEnoughBalance ? 'text-white' : 'text-red-400'}`}>
+                {formatAmount(balance)} {isEthToStx ? 'USDC' : 'USDCx'}
               </span>
             </div>
-          </CardHeader>
-          
-          <CardContent className="space-y-5 px-6 pb-6">
-            
-            {/* Amount - Hero Display */}
-            <div className="text-center space-y-1">
-              <div className="flex items-baseline justify-center gap-2">
-                <span className="text-4xl md:text-5xl font-display font-black text-white tracking-tighter drop-shadow-sm">
-                  {formatAmount(invoice.amount)}
-                </span>
-                <span className={`text-lg font-bold font-display ${isEthToStx ? 'text-electric-lime' : 'text-electric-purple'}`}>
-                  {isEthToStx ? 'USDC' : 'USDCx'}
-                </span>
+          )}
+
+          {/* Allowance (ETH to STX only) */}
+          {isEthToStx && needsApproval && requiredWalletConnected && status !== 'success' && (
+            <div className="flex items-center justify-between p-6 border border-white/5 bg-white/[0.01]">
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-white/30 uppercase tracking-widest">Allowance</span>
+                <button onClick={handleRefreshAllowance} className="text-white/30 hover:text-white transition-colors">
+                  <RefreshCw className={`w-3 h-3 ${isRefreshingAllowance ? 'animate-spin' : ''}`} />
+                </button>
               </div>
-              <p className="text-[10px] text-white/30 font-mono uppercase tracking-widest">Total Amount Due</p>
+              <span className="font-mono text-white/60">{formatAmount(formatUnits(allowance, 6))} USDC</span>
             </div>
+          )}
 
-            {/* Visual Route */}
-            <div className="relative h-14 flex items-center justify-between px-8">
-              {/* Connector Line */}
-              <div className="absolute left-14 right-14 top-1/2 -translate-y-1/2 h-[1px] bg-white/5">
-                <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent w-1/2 animate-[shimmer_2s_infinite] ${isEthToStx ? 'via-electric-lime/50' : 'via-electric-purple/50'}`} />
-              </div>
-
-              {/* Source Node */}
-              <div className="relative z-10 flex flex-col items-center gap-1">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg font-display font-bold shadow-lg border border-white/10 bg-[#1a1033]`}>
-                  <span className="text-white">$</span>
-                </div>
-                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{isEthToStx ? 'Ethereum' : 'Stacks'}</span>
-              </div>
-
-              {/* Arrow */}
-              <div className="relative z-10 w-6 h-6 rounded-full bg-[#0f081e] border border-white/10 flex items-center justify-center shadow-lg">
-                <ArrowRight className="w-3 h-3 text-white/40" />
-              </div>
-
-              {/* Dest Node */}
-              <div className="relative z-10 flex flex-col items-center gap-1">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg font-display font-bold shadow-lg border border-white/10 bg-[#1a1033]`}>
-                  <span className={isEthToStx ? 'text-electric-lime' : 'text-white'}>S</span>
-                </div>
-                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{isEthToStx ? 'Stacks' : 'Ethereum'}</span>
+          {/* Errors */}
+          {(amountError || error) && (
+            <div className="p-6 border border-red-500/20 bg-red-500/5">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                <p className="text-red-400 text-sm">{amountError || error}</p>
               </div>
             </div>
+          )}
 
-            {/* Details Panel (Inset) */}
-            <div className="rounded-2xl bg-[#08040d] p-4 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] border border-white/10 space-y-3">
-              {/* Recipient */}
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest ml-1">Recipient</p>
-                <div className="flex items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/5 group hover:bg-white/10 transition-colors">
-                  <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                    <Wallet className="w-3 h-3 text-white/70" />
-                  </div>
-                  <p className="font-mono text-xs text-white break-all leading-relaxed">
-                    {invoice.recipient}
-                  </p>
-                </div>
-              </div>
-
-              {/* Memo */}
-              {invoice.memo && (
-                <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest ml-1">Memo</p>
-                  <p className="text-sm text-white/90 italic px-2 font-medium">
-                    "{invoice.memo}"
-                  </p>
-                </div>
-              )}
-
-              {/* Errors */}
-              {amountError && (
-                <div className="flex items-start gap-2 p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
-                  <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                  <span>{amountError}</span>
-                </div>
-              )}
-              
-              {/* General Error */}
-              {error && (
-                <div className="flex items-start gap-2 p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs animate-in fade-in">
-                  <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
+          {/* Success */}
+          {status === 'success' && txHash && (
+            <div className="p-8 border border-green-500/20 bg-green-500/5 text-center">
+              <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
+              <h3 
+                className="text-white mb-2"
+                style={{ fontSize: '1.25rem', fontFamily: "'Instrument Serif', Georgia, serif" }}
+              >
+                Payment Sent!
+              </h3>
+              <p className="text-white/40 text-sm">Redirecting to tracker...</p>
             </div>
+          )}
+        </div>
 
-            {/* Balance Check */}
-            {requiredWalletConnected && (
-              <div className="flex items-center justify-between px-1">
-                <div className="flex items-center gap-2">
-                  <div className={`w-1.5 h-1.5 rounded-full ${hasEnoughBalance ? 'bg-electric-lime shadow-[0_0_5px_#D9FF00]' : 'bg-red-500'}`} />
-                  <span className="text-[10px] font-bold text-white/60 uppercase tracking-wider">Wallet Balance</span>
-                </div>
-                <span className={`text-xs font-mono ${hasEnoughBalance ? 'text-white' : 'text-red-400'}`}>
-                  {formatAmount(balance)} {isEthToStx ? 'USDC' : 'USDCx'}
-                </span>
-              </div>
+        {/* Action Button */}
+        {!requiredWalletConnected ? (
+          <div className="text-center py-8 border border-white/5">
+            <p className="text-white/40">Connect your {isEthToStx ? 'Ethereum' : 'Stacks'} wallet to pay</p>
+          </div>
+        ) : status !== 'success' && (
+          <Button 
+            className={`w-full h-16 text-lg rounded-none ${
+              needsApproval && isEthToStx
+                ? 'bg-white/10 text-white border border-white/20 hover:bg-white/20' 
+                : 'btn-minimal'
+            }`}
+            onClick={handlePay}
+            disabled={status === 'approving' || status === 'bridging' || !hasEnoughBalance || !meetsMinimum}
+          >
+            {(status === 'approving' || status === 'bridging') && (
+              <Loader2 className="w-5 h-5 mr-3 animate-spin" />
             )}
+            {status === 'approving' ? 'Approving USDC...' :
+             status === 'bridging' ? 'Processing...' :
+             needsApproval && isEthToStx ? `Approve ${formatAmount(invoice.amount)} USDC` :
+             `Pay ${formatAmount(invoice.amount)} ${isEthToStx ? 'USDC' : 'USDCx'}`}
+          </Button>
+        )}
 
-            {/* Success State */}
-            {status === 'success' && txHash && (
-              <div className="p-4 rounded-xl bg-electric-lime/10 border border-electric-lime/20 text-electric-lime space-y-2 animate-in fade-in zoom-in-95 duration-300">
-                <div className="flex items-center justify-center gap-2 font-bold font-display text-base">
-                  <CheckCircle className="w-5 h-5" />
-                  Payment Sent!
-                </div>
-                <p className="text-center text-[10px] text-white/60">Redirecting to tracker...</p>
-              </div>
-            )}
-
-            {/* Actions */}
-            {!requiredWalletConnected ? (
-              <div className="text-center space-y-2 py-1">
-                <p className="text-xs font-medium text-white/60">Connect wallet to pay</p>
-              </div>
-            ) : (
-              <div className="space-y-2 pt-1">
-                {isEthToStx && needsApproval && status !== 'success' && (
-                  <div className="bg-[#0f081e] p-3 rounded-xl border border-white/5 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-white/40 uppercase tracking-widest">Allowance</span>
-                      <button onClick={handleRefreshAllowance} className="text-white/40 hover:text-white transition-colors">
-                        <RefreshCw className={`w-3 h-3 ${isRefreshingAllowance ? 'animate-spin' : ''}`} />
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-display font-bold text-white">{formatAmount(formatUnits(allowance, 6))}</span>
-                      <span className="text-[10px] font-mono text-white/40">Approved</span>
-                    </div>
-                  </div>
-                )}
-
-                <Button 
-                  className={`w-full h-14 text-base font-bold rounded-2xl shadow-lg transition-all hover:scale-[1.01] active:scale-[0.99] ${
-                    needsApproval && isEthToStx
-                      ? 'bg-electric-purple hover:bg-electric-purple/90 shadow-[0_0_20px_-5px_rgba(189,0,255,0.4)] text-white' 
-                      : 'clay-btn-primary text-black'
-                  }`}
-                  onClick={isEthToStx && needsApproval ? handleApprove : handlePay}
-                  disabled={status === 'approving' || status === 'bridging' || status === 'success' || !hasEnoughBalance || !meetsMinimum}
-                >
-                  {(status === 'approving' || status === 'bridging') && (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  )}
-                  {status === 'approving' ? 'Approving USDC...' :
-                   status === 'bridging' ? 'Processing Bridge...' :
-                   status === 'success' ? 'Success!' :
-                   needsApproval && isEthToStx ? `Approve ${formatAmount(invoice.amount)} USDC` :
-                   `Pay ${formatAmount(invoice.amount)} ${isEthToStx ? 'USDC' : 'USDCx'}`}
-                </Button>
-              </div>
-            )}
-
-            {/* Footer Info */}
-            <div className="text-center space-y-0.5 pt-2 border-t border-white/5">
-              <p className="text-[9px] text-white/20 font-mono uppercase tracking-[0.2em]">
-                Est. Time: ~{isEthToStx ? '15' : '25'} min
-              </p>
-            </div>
-
-          </CardContent>
-        </Card>
+        {/* Footer Info */}
+        <p className="text-center text-xs text-white/20 mt-8">
+          Estimated time: ~{isEthToStx ? '15' : '25'} minutes
+        </p>
       </div>
     </Layout>
   )

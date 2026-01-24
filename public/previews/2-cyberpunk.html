@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settler - Cyberpunk Terminal Style</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            mono: ['JetBrains Mono', 'monospace'],
+            display: ['Orbitron', 'sans-serif'],
+          },
+          colors: {
+            cyber: {
+              green: '#00FF00',
+              cyan: '#00FFFF',
+              magenta: '#FF00FF',
+              yellow: '#FFFF00',
+              dark: '#0D0D0D',
+              darker: '#050505',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background: #050505;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    /* Scanlines overlay */
+    .scanlines::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.3) 2px,
+        rgba(0, 0, 0, 0.3) 4px
+      );
+      z-index: 100;
+    }
+    
+    .neon-text {
+      text-shadow: 
+        0 0 10px currentColor,
+        0 0 20px currentColor,
+        0 0 40px currentColor;
+    }
+    
+    .neon-green {
+      color: #00FF00;
+      text-shadow: 
+        0 0 10px #00FF00,
+        0 0 20px #00FF00,
+        0 0 40px #00FF00;
+    }
+    
+    .neon-cyan {
+      color: #00FFFF;
+      text-shadow: 
+        0 0 10px #00FFFF,
+        0 0 20px #00FFFF,
+        0 0 40px #00FFFF;
+    }
+    
+    .neon-box {
+      border: 1px solid #00FF00;
+      box-shadow: 
+        0 0 10px rgba(0, 255, 0, 0.3),
+        inset 0 0 10px rgba(0, 255, 0, 0.1);
+    }
+    
+    .neon-box-cyan {
+      border: 1px solid #00FFFF;
+      box-shadow: 
+        0 0 10px rgba(0, 255, 255, 0.3),
+        inset 0 0 10px rgba(0, 255, 255, 0.1);
+    }
+    
+    .glitch {
+      animation: glitch 2s infinite;
+    }
+    
+    @keyframes glitch {
+      0%, 90%, 100% { transform: translate(0); }
+      92% { transform: translate(-2px, 2px); }
+      94% { transform: translate(2px, -2px); }
+      96% { transform: translate(-2px, 0); }
+      98% { transform: translate(2px, 0); }
+    }
+    
+    .typing::after {
+      content: '|';
+      animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+    
+    .btn-cyber {
+      background: transparent;
+      border: 2px solid #00FF00;
+      color: #00FF00;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-cyber::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .btn-cyber:hover::before {
+      left: 100%;
+    }
+    
+    .btn-cyber:hover {
+      background: rgba(0, 255, 0, 0.1);
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    }
+    
+    .terminal-card {
+      background: rgba(0, 20, 0, 0.8);
+      border: 1px solid rgba(0, 255, 0, 0.3);
+    }
+    
+    .grid-bg {
+      background-image: 
+        linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-green-400 antialiased scanlines grid-bg">
+  <!-- Content -->
+  <div class="relative z-10">
+    <!-- Nav -->
+    <nav class="flex items-center justify-between px-6 lg:px-12 py-6 border-b border-green-500/20">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 neon-box flex items-center justify-center">
+          <span class="font-display font-bold text-lg neon-green">S</span>
+        </div>
+        <span class="font-display font-bold text-lg tracking-widest neon-green">SETTLER</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="text-xs text-green-500/50">[SYS:ONLINE]</span>
+        <button class="btn-cyber px-5 py-2.5 font-mono text-sm uppercase tracking-wider">
+          &gt; Initialize_
+        </button>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <main class="max-w-6xl mx-auto px-6 pt-20 pb-32">
+      <div class="text-center space-y-8">
+        <!-- Terminal Header -->
+        <div class="inline-block text-left">
+          <div class="text-xs text-green-500/50 mb-2">root@settler:~$ ./launch.sh</div>
+          <div class="text-xs text-green-500/30">[INITIALIZING CROSS-CHAIN PROTOCOL...]</div>
+        </div>
+
+        <!-- Headline -->
+        <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-wider glitch">
+          <span class="text-white/90">SETTLE ON</span>
+          <br>
+          <span class="neon-cyan">BITCOIN_</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <div class="font-mono text-base md:text-lg text-green-400/70 max-w-2xl mx-auto leading-relaxed">
+          <span class="text-green-500/50">&gt;</span> The financial OS for the Bitcoin economy.
+          <br>
+          <span class="text-green-500/50">&gt;</span> Input: <span class="text-cyan-400">USDC</span> | Output: <span class="neon-green">USDCx</span>
+        </div>
+
+        <!-- Status Badge -->
+        <div class="inline-flex items-center gap-3 px-4 py-2 terminal-card text-sm">
+          <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-lg shadow-green-500/50"></span>
+          <span class="text-green-400/70">NETWORK_STATUS: </span>
+          <span class="text-green-400">SEPOLIA + STACKS_TESTNET</span>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
+          <button class="btn-cyber px-8 py-4 font-mono text-base uppercase tracking-wider flex items-center gap-3">
+            <span>&gt;</span>
+            <span>Create_Invoice</span>
+            <span class="typing"></span>
+          </button>
+          <button class="px-8 py-4 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition-all font-mono text-base uppercase tracking-wider">
+            View_Treasury
+          </button>
+        </div>
+      </div>
+
+      <!-- Bridge Visual -->
+      <div class="mt-24 terminal-card p-8 md:p-12">
+        <div class="text-xs text-green-500/50 mb-6 font-mono">// BRIDGE_PROTOCOL v1.0.0</div>
+        <div class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
+          <!-- ETH Side -->
+          <div class="text-center space-y-4">
+            <div class="w-20 h-20 neon-box-cyan flex items-center justify-center mx-auto">
+              <span class="text-3xl font-display font-bold text-cyan-400">$</span>
+            </div>
+            <div class="font-mono">
+              <p class="text-cyan-400 font-bold">USDC</p>
+              <p class="text-xs text-green-500/50">chain: ETHEREUM</p>
+            </div>
+          </div>
+
+          <!-- Arrow Animation -->
+          <div class="flex items-center gap-2 font-mono text-green-500/50">
+            <span>---</span>
+            <span class="text-green-400 animate-pulse">&gt;&gt;&gt;</span>
+            <span class="text-xs">[CCTP]</span>
+            <span class="text-green-400 animate-pulse">&gt;&gt;&gt;</span>
+            <span>---</span>
+          </div>
+
+          <!-- STX Side -->
+          <div class="text-center space-y-4">
+            <div class="w-20 h-20 neon-box flex items-center justify-center mx-auto">
+              <span class="text-3xl font-display font-bold neon-green">S</span>
+            </div>
+            <div class="font-mono">
+              <p class="neon-green font-bold">USDCx</p>
+              <p class="text-xs text-green-500/50">chain: STACKS</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="mt-24 grid md:grid-cols-3 gap-6">
+        <div class="terminal-card p-6 hover:border-green-500/50 transition-all cursor-default">
+          <div class="text-xs text-green-500/50 mb-4 font-mono">// MODULE_01</div>
+          <div class="w-12 h-12 neon-box flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          </div>
+          <h3 class="font-display font-bold text-lg mb-2 text-green-400 tracking-wider">SMART_INVOICES</h3>
+          <p class="text-green-500/50 text-sm font-mono leading-relaxed">Generate cross-chain payment links. Zero database overhead.</p>
+        </div>
+
+        <div class="terminal-card p-6 hover:border-cyan-500/50 transition-all cursor-default">
+          <div class="text-xs text-cyan-500/50 mb-4 font-mono">// MODULE_02</div>
+          <div class="w-12 h-12 neon-box-cyan flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+          </div>
+          <h3 class="font-display font-bold text-lg mb-2 text-cyan-400 tracking-wider">CCTP_BRIDGE</h3>
+          <p class="text-cyan-500/50 text-sm font-mono leading-relaxed">Auto-convert ETH.USDC to STX.USDCx via Circle protocol.</p>
+        </div>
+
+        <div class="terminal-card p-6 hover:border-green-500/50 transition-all cursor-default">
+          <div class="text-xs text-green-500/50 mb-4 font-mono">// MODULE_03</div>
+          <div class="w-12 h-12 neon-box flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <h3 class="font-display font-bold text-lg mb-2 text-green-400 tracking-wider">BTC_SECURITY</h3>
+          <p class="text-green-500/50 text-sm font-mono leading-relaxed">Settlement secured by Stacks Bitcoin finality layer.</p>
+        </div>
+      </div>
+
+      <!-- Trust -->
+      <div class="mt-24 text-center font-mono">
+        <p class="text-xs text-green-500/30 uppercase tracking-widest mb-8">// PROTOCOL_DEPENDENCIES</p>
+        <div class="flex items-center justify-center gap-12">
+          <div class="flex items-center gap-3 text-green-500/40 hover:text-green-400 transition-colors">
+            <div class="w-8 h-8 rounded-full border border-current flex items-center justify-center text-xs">C</div>
+            <span class="font-bold tracking-wider">CIRCLE</span>
+          </div>
+          <div class="flex items-center gap-3 text-green-500/40 hover:text-green-400 transition-colors">
+            <div class="w-8 h-8 border border-current flex items-center justify-center text-xs">S</div>
+            <span class="font-bold tracking-wider">STACKS</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

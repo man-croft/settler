@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settler - Retro-Futurism Synthwave Style</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Rajdhani', 'sans-serif'],
+            display: ['Audiowide', 'cursive'],
+          },
+          colors: {
+            synth: {
+              pink: '#FF6EC7',
+              cyan: '#00FFFF',
+              purple: '#9D00FF',
+              yellow: '#FFE600',
+              dark: '#0D0221',
+              darker: '#06010F',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background: linear-gradient(180deg, #0D0221 0%, #1A0533 50%, #0D0221 100%);
+      min-height: 100vh;
+    }
+    
+    /* Grid floor */
+    .grid-floor {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 50vh;
+      background: 
+        linear-gradient(180deg, transparent 0%, rgba(157, 0, 255, 0.1) 100%),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 49px,
+          rgba(255, 110, 199, 0.3) 49px,
+          rgba(255, 110, 199, 0.3) 51px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 49px,
+          rgba(255, 110, 199, 0.3) 49px,
+          rgba(255, 110, 199, 0.3) 51px
+        );
+      transform: perspective(500px) rotateX(60deg);
+      transform-origin: center top;
+    }
+    
+    /* Sun */
+    .synth-sun {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      bottom: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, #FFE600 0%, #FF6EC7 50%, #9D00FF 100%);
+      border-radius: 50%;
+      box-shadow: 
+        0 0 60px rgba(255, 110, 199, 0.5),
+        0 0 120px rgba(255, 230, 0, 0.3);
+    }
+    
+    .synth-sun::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 50%;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 8px,
+        #0D0221 8px,
+        #0D0221 16px
+      );
+    }
+    
+    .neon-pink {
+      color: #FF6EC7;
+      text-shadow: 
+        0 0 10px #FF6EC7,
+        0 0 20px #FF6EC7,
+        0 0 40px #FF6EC7,
+        0 0 80px #FF6EC7;
+    }
+    
+    .neon-cyan {
+      color: #00FFFF;
+      text-shadow: 
+        0 0 10px #00FFFF,
+        0 0 20px #00FFFF,
+        0 0 40px #00FFFF;
+    }
+    
+    .neon-yellow {
+      color: #FFE600;
+      text-shadow: 
+        0 0 10px #FFE600,
+        0 0 20px #FFE600,
+        0 0 40px #FFE600;
+    }
+    
+    .chrome-text {
+      background: linear-gradient(180deg, #FFFFFF 0%, #A0A0A0 50%, #FFFFFF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    }
+    
+    .synth-card {
+      background: linear-gradient(135deg, rgba(157, 0, 255, 0.2), rgba(255, 110, 199, 0.1));
+      border: 1px solid rgba(255, 110, 199, 0.3);
+      box-shadow: 
+        0 0 20px rgba(255, 110, 199, 0.2),
+        inset 0 0 20px rgba(157, 0, 255, 0.1);
+    }
+    
+    .btn-synth {
+      background: linear-gradient(135deg, #FF6EC7, #9D00FF);
+      border: 2px solid #00FFFF;
+      box-shadow: 
+        0 0 20px rgba(255, 110, 199, 0.5),
+        0 0 40px rgba(0, 255, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-synth:hover {
+      transform: translateY(-3px);
+      box-shadow: 
+        0 0 30px rgba(255, 110, 199, 0.7),
+        0 0 60px rgba(0, 255, 255, 0.5);
+    }
+    
+    .retro-border {
+      border: 2px solid;
+      border-image: linear-gradient(135deg, #FF6EC7, #00FFFF) 1;
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    
+    .pulse-glow {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-white font-sans antialiased overflow-x-hidden">
+  <!-- Background Elements -->
+  <div class="fixed inset-0 pointer-events-none">
+    <div class="synth-sun"></div>
+    <div class="grid-floor"></div>
+  </div>
+
+  <!-- Content -->
+  <div class="relative z-10">
+    <!-- Nav -->
+    <nav class="flex items-center justify-between px-6 lg:px-12 py-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 synth-card flex items-center justify-center">
+          <span class="font-display text-xl neon-pink">S</span>
+        </div>
+        <span class="font-display text-xl tracking-wider neon-cyan">SETTLER</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button class="px-5 py-2.5 text-sm text-synth-cyan/70 hover:text-synth-cyan transition-colors font-semibold">DOCS</button>
+        <button class="btn-synth px-6 py-3 font-display text-sm tracking-wider">
+          LAUNCH
+        </button>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <main class="max-w-6xl mx-auto px-6 pt-16 pb-32">
+      <div class="text-center space-y-8">
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-3 px-5 py-2.5 synth-card rounded-full">
+          <span class="w-2 h-2 rounded-full bg-synth-cyan shadow-lg shadow-synth-cyan/50 pulse-glow"></span>
+          <span class="text-sm text-synth-pink font-semibold tracking-wide">LIVE ON TESTNET</span>
+        </div>
+
+        <!-- Headline -->
+        <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-normal leading-[1.1] tracking-wider">
+          <span class="chrome-text">SETTLE ON</span>
+          <br>
+          <span class="neon-pink">BITCOIN</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="text-lg md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed font-medium">
+          The financial OS for the Bitcoin economy.
+          <br>
+          Get paid in <span class="neon-cyan">USDC</span>. Settle in <span class="neon-pink">USDCx</span>.
+        </p>
+
+        <!-- CTA -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
+          <button class="btn-synth px-10 py-5 font-display text-base tracking-wider flex items-center gap-3">
+            START INVOICING
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </button>
+          <button class="px-10 py-5 retro-border bg-transparent hover:bg-synth-purple/20 transition-all font-display text-base tracking-wider text-synth-cyan">
+            TREASURY
+          </button>
+        </div>
+      </div>
+
+      <!-- Bridge Visual -->
+      <div class="mt-28 synth-card rounded-2xl p-10 md:p-14">
+        <div class="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20">
+          <!-- ETH Side -->
+          <div class="text-center space-y-4">
+            <div class="w-24 h-24 rounded-xl bg-gradient-to-br from-synth-cyan/30 to-synth-cyan/10 border-2 border-synth-cyan/50 flex items-center justify-center mx-auto">
+              <span class="text-4xl font-display neon-cyan">$</span>
+            </div>
+            <div>
+              <p class="font-display text-xl neon-cyan">USDC</p>
+              <p class="text-sm text-white/40 font-semibold tracking-wider">ETHEREUM</p>
+            </div>
+          </div>
+
+          <!-- Arrow -->
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-1 bg-gradient-to-r from-synth-cyan to-synth-pink"></div>
+            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-synth-pink to-synth-purple border-2 border-synth-yellow/50 flex items-center justify-center">
+              <svg class="w-6 h-6 text-synth-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            </div>
+            <div class="w-16 h-1 bg-gradient-to-r from-synth-pink to-synth-cyan"></div>
+          </div>
+
+          <!-- STX Side -->
+          <div class="text-center space-y-4">
+            <div class="w-24 h-24 rounded-xl bg-gradient-to-br from-synth-pink/30 to-synth-purple/10 border-2 border-synth-pink/50 flex items-center justify-center mx-auto">
+              <span class="text-4xl font-display neon-pink">S</span>
+            </div>
+            <div>
+              <p class="font-display text-xl neon-pink">USDCx</p>
+              <p class="text-sm text-white/40 font-semibold tracking-wider">STACKS</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="mt-28 grid md:grid-cols-3 gap-6">
+        <div class="synth-card rounded-xl p-8 hover:border-synth-cyan/50 transition-all cursor-default group">
+          <div class="w-14 h-14 rounded-lg bg-synth-cyan/20 border border-synth-cyan/40 flex items-center justify-center mb-6 group-hover:shadow-lg group-hover:shadow-synth-cyan/30 transition-shadow">
+            <svg class="w-7 h-7 text-synth-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          </div>
+          <h3 class="font-display text-xl mb-3 neon-cyan tracking-wider">SMART INVOICES</h3>
+          <p class="text-white/50 leading-relaxed">Create payment links that work cross-chain. No databases, no friction.</p>
+        </div>
+
+        <div class="synth-card rounded-xl p-8 hover:border-synth-pink/50 transition-all cursor-default group">
+          <div class="w-14 h-14 rounded-lg bg-synth-pink/20 border border-synth-pink/40 flex items-center justify-center mb-6 group-hover:shadow-lg group-hover:shadow-synth-pink/30 transition-shadow">
+            <svg class="w-7 h-7 text-synth-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+          </div>
+          <h3 class="font-display text-xl mb-3 neon-pink tracking-wider">SEAMLESS BRIDGE</h3>
+          <p class="text-white/50 leading-relaxed">Auto-convert Ethereum USDC to Stacks USDCx via Circle.</p>
+        </div>
+
+        <div class="synth-card rounded-xl p-8 hover:border-synth-yellow/50 transition-all cursor-default group">
+          <div class="w-14 h-14 rounded-lg bg-synth-yellow/20 border border-synth-yellow/40 flex items-center justify-center mb-6 group-hover:shadow-lg group-hover:shadow-synth-yellow/30 transition-shadow">
+            <svg class="w-7 h-7 text-synth-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <h3 class="font-display text-xl mb-3 neon-yellow tracking-wider">BITCOIN SECURITY</h3>
+          <p class="text-white/50 leading-relaxed">Settlement protected by Stacks Bitcoin finality.</p>
+        </div>
+      </div>
+
+      <!-- Trust -->
+      <div class="mt-28 text-center">
+        <p class="text-xs text-white/30 uppercase tracking-[0.3em] mb-8 font-semibold">POWERED BY</p>
+        <div class="flex items-center justify-center gap-12">
+          <div class="flex items-center gap-3 text-white/40 hover:text-synth-cyan transition-colors cursor-default">
+            <div class="w-10 h-10 rounded-lg border border-current flex items-center justify-center font-display">C</div>
+            <span class="font-display text-lg tracking-wider">CIRCLE</span>
+          </div>
+          <div class="flex items-center gap-3 text-white/40 hover:text-synth-pink transition-colors cursor-default">
+            <div class="w-10 h-10 rounded-lg border border-current flex items-center justify-center font-display">S</div>
+            <span class="font-display text-lg tracking-wider">STACKS</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

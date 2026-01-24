@@ -6,12 +6,14 @@ import { useWalletStore } from '@/store/wallet'
 import { shortenAddress } from '@/lib/utils'
 import { AppConfig, UserSession, showConnect } from '@stacks/connect'
 import { NetworkBanner } from '@/components/NetworkBanner'
+import { Link } from 'react-router-dom'
 
 const appConfig = new AppConfig(['store_write', 'publish_data'])
 const userSession = new UserSession({ appConfig })
 
 interface LayoutProps {
   children: ReactNode
+  showSidebar?: boolean
 }
 
 function StacksConnectButton() {
@@ -40,9 +42,9 @@ function StacksConnectButton() {
         variant="outline" 
         size="sm"
         onClick={disconnectStacks}
-        className="font-mono text-xs border-white/10 hover:bg-white/5"
+        className="font-mono text-xs border-white/10 hover:border-white/30 hover:bg-transparent rounded-lg"
       >
-        <div className="w-2 h-2 rounded-full bg-orbital-orange mr-2" />
+        <div className="w-2 h-2 rounded-full bg-minimal-accent mr-2" />
         {shortenAddress(stacksAddress)}
       </Button>
     )
@@ -53,7 +55,7 @@ function StacksConnectButton() {
       variant="outline"
       size="sm"
       onClick={handleConnect}
-      className="border-white/10 hover:bg-white/5 text-xs"
+      className="border-white/10 hover:border-white/30 hover:bg-transparent text-xs rounded-lg"
     >
       Connect Stacks
     </Button>
@@ -97,7 +99,7 @@ function EthereumConnectButton() {
                   <Button 
                     size="sm"
                     onClick={openConnectModal} 
-                    className="bg-orbital-blue hover:bg-orbital-blue/90 text-white text-xs border-none"
+                    className="btn-minimal text-xs rounded-lg"
                   >
                     Connect ETH
                   </Button>
@@ -110,7 +112,7 @@ function EthereumConnectButton() {
                     variant="destructive"
                     size="sm"
                     onClick={openChainModal}
-                    className="text-xs"
+                    className="text-xs rounded-lg"
                   >
                     Wrong network
                   </Button>
@@ -122,9 +124,9 @@ function EthereumConnectButton() {
                   variant="outline"
                   size="sm"
                   onClick={openAccountModal}
-                  className="font-mono text-xs border-white/10 hover:bg-white/5"
+                  className="font-mono text-xs border-white/10 hover:border-white/30 hover:bg-transparent rounded-lg"
                 >
-                  <div className="w-2 h-2 rounded-full bg-orbital-blue mr-2" />
+                  <div className="w-2 h-2 rounded-full bg-blue-500 mr-2" />
                   {account.displayName}
                 </Button>
               );
@@ -136,15 +138,27 @@ function EthereumConnectButton() {
   )
 }
 
-export function Layout({ children }: LayoutProps) {
+export function Layout({ children, showSidebar = true }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-black text-foreground font-sans">
+    <div className="min-h-screen bg-minimal-black text-foreground font-sans">
       <NetworkBanner />
-      <Sidebar />
       
-      <div className="lg:pl-64 flex flex-col min-h-screen transition-all duration-300">
+      {showSidebar && <Sidebar />}
+      
+      <div className={`${showSidebar ? 'lg:pl-64' : ''} flex flex-col min-h-screen transition-all duration-300`}>
         {/* Top Bar */}
-        <header className="h-16 flex items-center justify-end px-6 border-b border-white/5 bg-black/50 backdrop-blur-sm sticky top-0 z-30">
+        <header className="h-16 flex items-center justify-between px-8 lg:px-16 border-b border-white/5 bg-minimal-black/80 backdrop-blur-sm sticky top-0 z-30">
+          {/* Logo - only show when sidebar is hidden */}
+          {!showSidebar && (
+            <Link to="/" className="flex items-center gap-2 hover-reveal pb-1">
+              <span className="font-serif italic text-2xl">Settler</span>
+            </Link>
+          )}
+          
+          {/* Spacer when sidebar is visible */}
+          {showSidebar && <div />}
+          
+          {/* Wallet Buttons */}
           <div className="flex items-center gap-3">
             <StacksConnectButton />
             <EthereumConnectButton />
@@ -152,10 +166,8 @@ export function Layout({ children }: LayoutProps) {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 p-6 md:p-10 w-full animate-in fade-in duration-500">
-          <div className="max-w-5xl mx-auto">
-            {children}
-          </div>
+        <main className="flex-1 w-full">
+          {children}
         </main>
       </div>
     </div>

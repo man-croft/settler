@@ -18,9 +18,9 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        sans: ['Outfit', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        serif: ['Instrument Serif', 'Georgia', 'serif'],
         mono: ['JetBrains Mono', 'monospace'],
-        display: ['Syne', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',
@@ -56,23 +56,38 @@ const config: Config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
-        // Electric Clay Palette Extensions
-        'electric-violet': '#0a0118',
-        'electric-indigo': '#130b24',
-        'electric-lime': '#D9FF00',
-        'electric-purple': '#BD00FF',
-        'electric-input-bg': '#0f081e',
+        // Exaggerated Minimalism Palette
+        minimal: {
+          black: '#0A0A0A',
+          white: '#FAFAFA',
+          accent: '#FF4D00',
+          muted: '#71717A',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
-      // BoxShadow commented out for debugging
-      // boxShadow: { ... },
-      backgroundImage: {
-        'aurora': 'radial-gradient(circle at 50% 0%, rgba(189, 0, 255, 0.15) 0%, transparent 50%), radial-gradient(circle at 100% 0%, rgba(217, 255, 0, 0.1) 0%, transparent 40%)',
-      }
+      fontSize: {
+        'massive': ['clamp(4rem, 15vw, 14rem)', { lineHeight: '0.9', letterSpacing: '-0.04em' }],
+        'display-lg': ['clamp(3rem, 10vw, 8rem)', { lineHeight: '0.95', letterSpacing: '-0.03em' }],
+        'display': ['clamp(2rem, 6vw, 4rem)', { lineHeight: '1', letterSpacing: '-0.02em' }],
+      },
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'slide-in': {
+          '0%': { opacity: '0', transform: 'translateX(-10px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 0.6s ease-out forwards',
+        'slide-in': 'slide-in 0.4s ease-out forwards',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

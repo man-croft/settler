@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settler - Liquid Glass Premium Style</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['DM Sans', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0c0118 0%, #1a0a2e 50%, #0f1629 100%);
+      min-height: 100vh;
+    }
+    
+    .liquid-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.7;
+      animation: morph 10s ease-in-out infinite;
+    }
+    
+    .blob-1 {
+      width: 500px;
+      height: 500px;
+      background: linear-gradient(135deg, #7C3AED, #EC4899);
+      top: -100px;
+      right: -100px;
+      animation-delay: 0s;
+    }
+    
+    .blob-2 {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #3B82F6, #06B6D4);
+      bottom: 10%;
+      left: -100px;
+      animation-delay: -3s;
+    }
+    
+    .blob-3 {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, #F59E0B, #EF4444);
+      top: 40%;
+      right: 20%;
+      animation-delay: -6s;
+    }
+    
+    @keyframes morph {
+      0%, 100% { 
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        transform: rotate(0deg) scale(1);
+      }
+      25% { 
+        border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+      }
+      50% { 
+        border-radius: 50% 60% 30% 60% / 30% 60% 70% 40%;
+        transform: rotate(180deg) scale(1.1);
+      }
+      75% { 
+        border-radius: 60% 40% 60% 30% / 70% 30% 50% 60%;
+      }
+    }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(40px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-card-strong {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(60px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+    
+    .iridescent {
+      background: linear-gradient(135deg, 
+        rgba(124, 58, 237, 0.3),
+        rgba(236, 72, 153, 0.3),
+        rgba(59, 130, 246, 0.3),
+        rgba(6, 182, 212, 0.3)
+      );
+      background-size: 300% 300%;
+      animation: shimmer 8s ease infinite;
+    }
+    
+    @keyframes shimmer {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
+    .btn-liquid {
+      background: linear-gradient(135deg, #7C3AED, #EC4899);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+    }
+    
+    .btn-liquid::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, #EC4899, #7C3AED);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    
+    .btn-liquid:hover::before {
+      opacity: 1;
+    }
+    
+    .btn-liquid:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px rgba(124, 58, 237, 0.4);
+    }
+    
+    .btn-liquid span {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .text-gradient {
+      background: linear-gradient(135deg, #F8FAFC, #94A3B8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .text-gradient-color {
+      background: linear-gradient(135deg, #A78BFA, #F472B6, #38BDF8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .floating {
+      animation: floating 6s ease-in-out infinite;
+    }
+    
+    @keyframes floating {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+  </style>
+</head>
+<body class="min-h-screen text-white font-sans antialiased overflow-x-hidden">
+  <!-- Background Blobs -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="liquid-blob blob-1"></div>
+    <div class="liquid-blob blob-2"></div>
+    <div class="liquid-blob blob-3"></div>
+  </div>
+
+  <!-- Content -->
+  <div class="relative z-10">
+    <!-- Nav -->
+    <nav class="flex items-center justify-between px-6 lg:px-12 py-6">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl iridescent flex items-center justify-center font-display font-bold text-lg shadow-lg">S</div>
+        <span class="font-display font-semibold text-xl tracking-tight">Settler</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button class="px-5 py-2.5 text-sm text-white/60 hover:text-white transition-colors">Docs</button>
+        <button class="btn-liquid px-6 py-3 rounded-2xl text-sm font-medium">
+          <span>Launch App</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <main class="max-w-6xl mx-auto px-6 pt-20 pb-32">
+      <div class="text-center space-y-8">
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-3 px-5 py-2.5 rounded-full glass-card">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-lg shadow-emerald-500/50 animate-pulse"></span>
+          <span class="text-sm text-white/70">Live on Sepolia & Stacks Testnet</span>
+        </div>
+
+        <!-- Headline -->
+        <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.05] tracking-tight">
+          <span class="text-gradient">Settle on</span>
+          <br>
+          <span class="text-gradient-color">Bitcoin.</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
+          The financial OS for the Bitcoin economy.
+          <br>
+          Get paid in <span class="text-white/80">USDC</span>. Settle in <span class="text-purple-400">USDCx</span>.
+        </p>
+
+        <!-- CTA -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
+          <button class="btn-liquid px-10 py-5 rounded-2xl text-base font-semibold flex items-center gap-3">
+            <span>Start Invoicing</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </button>
+          <button class="px-10 py-5 rounded-2xl text-base font-medium glass-card hover:bg-white/10 transition-all">
+            View Treasury
+          </button>
+        </div>
+      </div>
+
+      <!-- Bridge Visual -->
+      <div class="mt-28 glass-card-strong rounded-[2rem] p-10 md:p-14 floating">
+        <div class="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20">
+          <!-- ETH Side -->
+          <div class="text-center space-y-4">
+            <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-500/30 to-cyan-500/30 border border-blue-400/30 flex items-center justify-center mx-auto shadow-xl shadow-blue-500/20">
+              <span class="text-4xl font-display font-bold text-blue-300">$</span>
+            </div>
+            <div>
+              <p class="font-display font-semibold text-xl text-white/90">USDC</p>
+              <p class="text-sm text-white/40">Ethereum</p>
+            </div>
+          </div>
+
+          <!-- Arrow -->
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-[2px] bg-gradient-to-r from-blue-500/30 to-purple-500/50"></div>
+            <div class="w-14 h-14 rounded-2xl iridescent flex items-center justify-center shadow-lg">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            </div>
+            <div class="w-12 h-[2px] bg-gradient-to-r from-purple-500/50 to-pink-500/30"></div>
+          </div>
+
+          <!-- STX Side -->
+          <div class="text-center space-y-4">
+            <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 border border-purple-400/30 flex items-center justify-center mx-auto shadow-xl shadow-purple-500/20">
+              <span class="text-4xl font-display font-bold text-purple-300">S</span>
+            </div>
+            <div>
+              <p class="font-display font-semibold text-xl text-white/90">USDCx</p>
+              <p class="text-sm text-white/40">Stacks</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="mt-28 grid md:grid-cols-3 gap-6">
+        <div class="glass-card rounded-3xl p-8 hover:bg-white/[0.06] transition-all cursor-default group">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          </div>
+          <h3 class="font-display font-semibold text-xl mb-3">Smart Invoices</h3>
+          <p class="text-white/40 leading-relaxed">Create payment links that work cross-chain. No databases, no friction.</p>
+        </div>
+
+        <div class="glass-card rounded-3xl p-8 hover:bg-white/[0.06] transition-all cursor-default group">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+          </div>
+          <h3 class="font-display font-semibold text-xl mb-3">Seamless Bridge</h3>
+          <p class="text-white/40 leading-relaxed">Auto-convert Ethereum USDC to Stacks USDCx via Circle xReserve.</p>
+        </div>
+
+        <div class="glass-card rounded-3xl p-8 hover:bg-white/[0.06] transition-all cursor-default group">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500/20 to-yellow-500/20 border border-orange-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <h3 class="font-display font-semibold text-xl mb-3">Bitcoin Security</h3>
+          <p class="text-white/40 leading-relaxed">Settlement protected by Stacks Bitcoin finality.</p>
+        </div>
+      </div>
+
+      <!-- Trust -->
+      <div class="mt-28 text-center">
+        <p class="text-xs text-white/30 uppercase tracking-widest mb-8">Powered By</p>
+        <div class="flex items-center justify-center gap-12">
+          <div class="flex items-center gap-3 text-white/30 hover:text-white/60 transition-colors cursor-default">
+            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">C</div>
+            <span class="font-display font-semibold text-lg">Circle</span>
+          </div>
+          <div class="flex items-center gap-3 text-white/30 hover:text-white/60 transition-colors cursor-default">
+            <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">S</div>
+            <span class="font-display font-semibold text-lg">Stacks</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

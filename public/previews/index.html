@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settler - Design Preview Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: #0a0a0a;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .preview-1 { background: linear-gradient(135deg, #8B5CF6, #3B82F6, #EC4899); }
+    .preview-2 { background: linear-gradient(135deg, #0D0D0D, #00FF00, #00FFFF); }
+    .preview-3 { background: linear-gradient(135deg, #0A0A0A, #FAFAFA, #FF4D00); }
+    .preview-4 { background: linear-gradient(135deg, #7C3AED, #EC4899, #3B82F6); }
+    .preview-5 { background: linear-gradient(135deg, #FF6EC7, #9D00FF, #00FFFF); }
+  </style>
+</head>
+<body class="min-h-screen text-white antialiased">
+  <div class="max-w-6xl mx-auto px-6 py-16">
+    <!-- Header -->
+    <div class="text-center mb-16">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Settler Design Preview</h1>
+      <p class="text-white/50 text-lg">Choose your preferred landing page style for the hackathon</p>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- Style 1: Aurora -->
+      <a href="1-aurora.html" class="card rounded-2xl overflow-hidden group cursor-pointer">
+        <div class="h-48 preview-1 opacity-80 group-hover:opacity-100 transition-opacity"></div>
+        <div class="p-6">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="px-2 py-1 text-xs bg-purple-500/20 text-purple-400 rounded">Recommended</span>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">1. Aurora Borealis</h3>
+          <p class="text-white/50 text-sm leading-relaxed">Flowing mesh gradients, purple/cyan/magenta waves. Premium SaaS feel.</p>
+        </div>
+      </a>
+
+      <!-- Style 2: Cyberpunk -->
+      <a href="2-cyberpunk.html" class="card rounded-2xl overflow-hidden group cursor-pointer">
+        <div class="h-48 preview-2 opacity-80 group-hover:opacity-100 transition-opacity"></div>
+        <div class="p-6">
+          <h3 class="text-xl font-semibold mb-2">2. Cyberpunk Terminal</h3>
+          <p class="text-white/50 text-sm leading-relaxed">Matrix green neon, scanlines, terminal aesthetic. Edgy crypto hacker vibe.</p>
+        </div>
+      </a>
+
+      <!-- Style 3: Minimal -->
+      <a href="3-minimal.html" class="card rounded-2xl overflow-hidden group cursor-pointer">
+        <div class="h-48 preview-3 opacity-80 group-hover:opacity-100 transition-opacity"></div>
+        <div class="p-6">
+          <h3 class="text-xl font-semibold mb-2">3. Exaggerated Minimalism</h3>
+          <p class="text-white/50 text-sm leading-relaxed">Giant serif typography, massive whitespace. High-end fashion/agency vibe.</p>
+        </div>
+      </a>
+
+      <!-- Style 4: Liquid Glass -->
+      <a href="4-liquid-glass.html" class="card rounded-2xl overflow-hidden group cursor-pointer">
+        <div class="h-48 preview-4 opacity-80 group-hover:opacity-100 transition-opacity"></div>
+        <div class="p-6">
+          <h3 class="text-xl font-semibold mb-2">4. Liquid Glass Premium</h3>
+          <p class="text-white/50 text-sm leading-relaxed">Morphing blobs, iridescent highlights, floating animations. Luxury feel.</p>
+        </div>
+      </a>
+
+      <!-- Style 5: Synthwave -->
+      <a href="5-synthwave.html" class="card rounded-2xl overflow-hidden group cursor-pointer">
+        <div class="h-48 preview-5 opacity-80 group-hover:opacity-100 transition-opacity"></div>
+        <div class="p-6">
+          <h3 class="text-xl font-semibold mb-2">5. Retro-Futurism Synthwave</h3>
+          <p class="text-white/50 text-sm leading-relaxed">80s neon pink/cyan, sunset sun, grid floor. Nostalgic yet futuristic.</p>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-16 text-center text-white/30 text-sm">
+      <p>Click any card to view the full landing page design</p>
+    </div>
+  </div>
+</body>
+</html>
