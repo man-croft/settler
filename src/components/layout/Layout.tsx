@@ -37,11 +37,11 @@ function StacksConnectButton() {
   if (stacksAddress) {
     return (
       <Button 
-        variant="outline" 
+        variant="secondary" 
         onClick={disconnectStacks}
-        className="font-mono text-xs h-9 bg-white/5 border-white/10 hover:bg-white/10 hover:border-red-500/50"
+        className="font-mono"
       >
-        <span className="w-2 h-2 rounded-full bg-red-500 mr-2" />
+        <span className="w-2 h-2 rounded-full bg-electric-purple mr-2 shadow-[0_0_10px_#BD00FF]" />
         {shortenAddress(stacksAddress)}
       </Button>
     )
@@ -49,9 +49,8 @@ function StacksConnectButton() {
 
   return (
     <Button 
-      variant="outline" 
+      variant="secondary"
       onClick={handleConnect}
-      className="text-xs h-9 bg-white/5 border-white/10 hover:bg-white/10 hover:border-red-500/50 text-white"
     >
       Connect Stacks
     </Button>
@@ -93,9 +92,8 @@ function EthereumConnectButton() {
               if (!connected) {
                 return (
                   <Button 
-                    variant="outline"
-                    onClick={openConnectModal} 
-                    className="text-xs h-9 bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/50 text-white"
+                    variant="default"
+                    onClick={openConnectModal}
                   >
                     Connect Ethereum
                   </Button>
@@ -107,7 +105,6 @@ function EthereumConnectButton() {
                   <Button 
                     variant="destructive"
                     onClick={openChainModal}
-                    className="text-xs h-9 bg-red-600 hover:bg-red-700 text-white border-none"
                   >
                     Wrong network
                   </Button>
@@ -116,11 +113,11 @@ function EthereumConnectButton() {
 
               return (
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   onClick={openAccountModal}
-                  className="font-mono text-xs h-9 bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/50 text-white"
+                  className="font-mono"
                 >
-                  <span className="w-2 h-2 rounded-full bg-white mr-2" />
+                  <span className="w-2 h-2 rounded-full bg-electric-lime mr-2 shadow-[0_0_10px_#D9FF00]" />
                   {account.displayName}
                 </Button>
               );
@@ -134,38 +131,38 @@ function EthereumConnectButton() {
 
 export function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen font-sans flex flex-col bg-background">
+    <div className="min-h-screen font-sans flex flex-col bg-background text-foreground overflow-x-hidden selection:bg-electric-lime selection:text-black">
       {/* Network Warning Banner */}
       <NetworkBanner />
       
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full glass-strong border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-6 flex h-16 items-center justify-between">
+      {/* Floating Clay Navbar */}
+      <div className="w-full px-4 pt-6 z-50">
+        <header className="max-w-6xl mx-auto clay-card h-20 px-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 font-semibold text-xl tracking-tight hover:opacity-80 transition-opacity">
-            <span className="font-display font-bold text-xl tracking-wider text-white">SETTLER</span>
+            <span className="font-display font-black text-2xl tracking-tight text-gradient-electric drop-shadow-sm">SETTLER</span>
           </Link>
           
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/60">
-            <Link to="/create" className="hover:text-white hover:glow-white transition-all">Create Invoice</Link>
-            <Link to="/track" className="hover:text-white hover:glow-white transition-all">Track</Link>
-            <Link to="/treasury" className="hover:text-white hover:glow-white transition-all">Treasury</Link>
+            <Link to="/create" className="hover:text-white hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.5)] transition-all">Create Invoice</Link>
+            <Link to="/track" className="hover:text-white hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.5)] transition-all">Track</Link>
+            <Link to="/treasury" className="hover:text-white hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.5)] transition-all">Treasury</Link>
           </nav>
           
           <div className="flex items-center gap-3">
             <StacksConnectButton />
             <EthereumConnectButton />
           </div>
-        </div>
-      </header>
+        </header>
+      </div>
 
       {/* Main Content */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-6 py-10">
+      <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-12">
         {children}
       </main>
 
       {/* Footer */}
-      <footer className="py-8 text-center text-sm text-white/40 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6">
+      <footer className="py-12 text-center text-sm text-white/30 border-t border-white/5 mt-auto">
+        <div className="max-w-6xl mx-auto px-6">
           <p className="font-mono">SETTLER • Cross-chain invoicing powered by Circle xReserve</p>
         </div>
       </footer>

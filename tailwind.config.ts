@@ -18,9 +18,9 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        sans: ['"Exo 2"', 'Inter', 'system-ui', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
-        display: ['Orbitron', 'sans-serif'],
+        sans: ['Outfit', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+        display: ['Syne', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',
@@ -56,12 +56,23 @@ const config: Config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        // Electric Clay Palette Extensions
+        'electric-violet': '#0a0118',
+        'electric-indigo': '#130b24',
+        'electric-lime': '#D9FF00',
+        'electric-purple': '#BD00FF',
+        'electric-input-bg': '#0f081e',
       },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      // BoxShadow commented out for debugging
+      // boxShadow: { ... },
+      backgroundImage: {
+        'aurora': 'radial-gradient(circle at 50% 0%, rgba(189, 0, 255, 0.15) 0%, transparent 50%), radial-gradient(circle at 100% 0%, rgba(217, 255, 0, 0.1) 0%, transparent 40%)',
+      }
     },
   },
   plugins: [require('tailwindcss-animate')],
